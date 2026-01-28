@@ -2,6 +2,78 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests
+        run: |
+          pytest -q
+
+      - name: Check Alembic autogenerate (no unintended migration diffs)
+        run: |
+          # generate autogenerate revision into temporary file
+          alembic revision --autogenerate -m "ci-autogen" || true
+          # if any files under alembic/versions were created or modified, fail
+          if [ -n "$(git status --porcelain alembic/versions)" ]; then
+            echo "Alembic autogenerate produced changes; please review and commit migrations." >&2
+            git --no-pager status --porcelain alembic/versions
+            exit 1
+          fi
+      live-e2e:
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main'
+        needs: test
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          - name: Set up Python
+            uses: actions/setup-python@v4
+            with:
+              python-version: '3.11'
+          - name: Install dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+          - name: Run live E2E (httpbin)
+            env:
+              OUTGOING_ENDPOINT: https://httpbin.org/post
+              API_KEY: test_server_key
+              ADMIN_API_KEY: test_admin_key
+            run: |
+              python dev-scripts/automated_e2e_live_httpbin.py
+name: CI
+
+on:
+  push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]

@@ -12,3 +12,5 @@ spacy
 phonenumbers
 python-multipart
 pytest
+python-jose[cryptography]
+jwcrypto

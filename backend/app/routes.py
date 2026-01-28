@@ -214,69 +214,97 @@ def delete_outgoing(msg_id: int, db: Session = Depends(get_db), admin: bool = De
 
 
 @router.get('/admin/ui/outgoing')
-def admin_outgoing_ui(admin: bool = Depends(require_admin_key)):
-    html = '''
-                <!doctype html>
-                <html>
-                <head><meta charset="utf-8"><title>Outgoing Messages</title></head>
-                <body>
-                <h3>Outgoing Messages</h3>
-                <div>
-                    <input id="q" placeholder="search session or content" style="width:40%" />
-                    <select id="status"><option value="">any</option><option value="queued">queued</option><option value="sent">sent</option><option value="failed">failed</option></select>
-                    <button id="search">Search</button>
-                    <button id="export">Export CSV</button>
-                </div>
-                <div id="list">Loading...</div>
-                <div id="pager"></div>
-                <script>
-                const API_KEY = '%s';
-                async function load(page=1){
-                    const q = document.getElementById('q').value;
-                    const status = document.getElementById('status').value;
-                    const url = new URL('/v1/admin/outgoing', location.origin);
-                    if(q) url.searchParams.append('q', q);
-                    if(status) url.searchParams.append('status', status);
-                    url.searchParams.append('page', page);
-                    url.searchParams.append('page_size', 20);
-                    const res = await fetch(url.toString(), {headers:{'x-api-key': API_KEY}})
-                    const data = await res.json();
-                    const el = document.getElementById('list');
-                    el.innerHTML = '';
-                    data.items.forEach(item=>{
-                        const d = document.createElement('div');
-                        d.style.border='1px solid #ccc'; d.style.padding='8px'; d.style.margin='6px';
+def admin_outgoing_ui():
+        # Serve a small SPA that requests an admin token at runtime (never embeds secrets)
+        html = '''
+        <!doctype html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Outgoing Messages</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                #controls { margin-bottom: 12px; }
+                .card { border: 1px solid #e0e0e0; padding: 8px; margin: 6px 0; border-radius: 4px; }
+                button { margin-right: 6px; }
+                pre { background:#fafafa; padding:8px; overflow:auto }
+            </style>
+        </head>
+        <body>
+        <h3>Outgoing Messages — Admin</h3>
+        <div id="login">
+            <label>Admin token: <input id="token" type="password" style="width:300px" /></label>
+            <button id="loginBtn">Use token</button>
+        </div>
+        <div id="app" style="display:none">
+            <div id="controls">
+                <input id="q" placeholder="search session or content" style="width:40%" />
+                <select id="status"><option value="">any</option><option value="queued">queued</option><option value="sent">sent</option><option value="failed">failed</option></select>
+                <button id="search">Search</button>
+                <button id="export">Export CSV</button>
+            </div>
+            <div id="list">Loading...</div>
+            <div id="pager"></div>
+        </div>
+        <script>
+            let ADMIN_TOKEN = null;
+            function authHeaders(){
+                if(!ADMIN_TOKEN) return {};
+                return { 'Authorization': 'Bearer ' + ADMIN_TOKEN };
+            }
+            document.getElementById('loginBtn').onclick = ()=>{
+                ADMIN_TOKEN = document.getElementById('token').value.trim();
+                if(!ADMIN_TOKEN){ alert('Enter token'); return }
+                document.getElementById('login').style.display='none';
+                document.getElementById('app').style.display='block';
+                load();
+            }
+            async function load(page=1){
+                const q = document.getElementById('q').value;
+                const status = document.getElementById('status').value;
+                const url = new URL('/v1/admin/outgoing', location.origin);
+                if(q) url.searchParams.append('q', q);
+                if(status) url.searchParams.append('status', status);
+                url.searchParams.append('page', page);
+                url.searchParams.append('page_size', 20);
+                const res = await fetch(url.toString(), {headers: authHeaders()})
+                if(res.status === 403){ alert('Unauthorized: invalid admin token'); return }
+                const data = await res.json();
+                const el = document.getElementById('list');
+                el.innerHTML = '';
+                data.items.forEach(item=>{
+                        const d = document.createElement('div'); d.className='card';
                         d.innerHTML = `<b>id</b>: ${item.id} <b>session</b>: ${item.sessionId} <br><b>status</b>: ${item.status} <br><pre>${item.content}</pre>`;
-                        const retry = document.createElement('button'); retry.textContent='Retry'; retry.onclick=()=>fetch(`/v1/admin/outgoing/${item.id}/retry`,{method:'POST',headers:{'x-api-key':API_KEY}}).then(()=>load(page));
-                        const del = document.createElement('button'); del.textContent='Delete'; del.onclick=()=>fetch(`/v1/admin/outgoing/${item.id}`,{method:'DELETE',headers:{'x-api-key':API_KEY}}).then(()=>load(page));
+                        const retry = document.createElement('button'); retry.textContent='Retry'; retry.onclick=()=>fetch(`/v1/admin/outgoing/${item.id}/retry`,{method:'POST',headers:authHeaders()}).then(()=>load(page));
+                        const del = document.createElement('button'); del.textContent='Delete'; del.onclick=()=>{ if(confirm('Delete message '+item.id+'?')) fetch(`/v1/admin/outgoing/${item.id}`,{method:'DELETE',headers:authHeaders()}).then(()=>load(page)); };
                         d.appendChild(retry); d.appendChild(del);
                         el.appendChild(d);
-                    })
-                    const pager = document.getElementById('pager');
-                    pager.innerHTML = `Page ${data.page} / ${Math.ceil(data.total / data.page_size || 1)}`;
-                }
-                document.getElementById('search').onclick = ()=>load(1);
-                document.getElementById('export').onclick = async ()=>{
-                    const q = document.getElementById('q').value;
-                    const status = document.getElementById('status').value;
-                    const url = new URL('/v1/admin/outgoing.csv', location.origin);
-                    if(q) url.searchParams.append('q', q);
-                    if(status) url.searchParams.append('status', status);
-                    url.searchParams.append('page_size', 1000);
-                    url.searchParams.append('page', 1);
-                    const res = await fetch(url.toString(), {headers:{'x-api-key': API_KEY}});
-                    const blob = await res.blob();
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'outgoing.csv';
-                    link.click();
-                }
-                load();
-                </script>
-                </body>
-                </html>
-                ''' % (os.getenv('ADMIN_API_KEY',''))
-                return HTMLResponse(html)
+                })
+                const pager = document.getElementById('pager');
+                pager.innerHTML = `Page ${data.page} / ${Math.max(1, Math.ceil(data.total / data.page_size || 1))}`;
+            }
+            document.getElementById('search').onclick = ()=>load(1);
+            document.getElementById('export').onclick = async ()=>{
+                const q = document.getElementById('q').value;
+                const status = document.getElementById('status').value;
+                const url = new URL('/v1/admin/outgoing.csv', location.origin);
+                if(q) url.searchParams.append('q', q);
+                if(status) url.searchParams.append('status', status);
+                url.searchParams.append('page_size', 1000);
+                url.searchParams.append('page', 1);
+                const res = await fetch(url.toString(), {headers: authHeaders()});
+                if(res.status === 403){ alert('Unauthorized: invalid admin token'); return }
+                const blob = await res.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'outgoing.csv';
+                link.click();
+            }
+        </script>
+        </body>
+        </html>
+        '''
+        return HTMLResponse(html)
 
 
             @router.get('/v1/admin/outgoing.csv')
