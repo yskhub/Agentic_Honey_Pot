@@ -1,0 +1,29 @@
+{
+  "id": "honeypot_default",
+  "name": "Honeypot Conversational Agent",
+  "greeting": "Hello, how can I help you today?",
+  "behaviors": [
+    {
+      "name": "ask_for_upi",
+      "match": ["upi", "upi id", "upi id is", "paytm", "google pay", "gpay", "phonepe"],
+      "patterns": ["(?P<upi>[\\w.\\-]+@[\\w.\\-]+)", "(?P<phone>\\b\\d{10}\\b)"],
+      "response_templates": ["Could you share your UPI ID so I can check the payment?", "Please provide your UPI ID (example: name@bank) to proceed."]
+    },
+    {
+      "name": "ask_for_phone",
+      "match": ["phone", "mobile", "contact number", "number"],
+      "response_templates": ["Can I have your phone number to verify?", "Share the best number to reach you."]
+    },
+    {
+      "name": "ask_for_bank_details",
+      "match": ["account", "bank", "ifsc", "ifsc code", "account number"],
+      "response_templates": ["Please give the account number and IFSC to proceed.", "What's your account number and bank branch?"]
+    },
+    {
+      "name": "default_reply",
+      "match": [],
+      "response_templates": ["Thanks for the info. Could you confirm the transaction reference?", "I see — tell me the last 4 digits of the account or the UPI ID."]
+    }
+  ],
+  "fallbacks": ["I didn't get that — please clarify."]
+}

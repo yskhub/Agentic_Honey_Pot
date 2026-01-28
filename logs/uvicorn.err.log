@@ -1,0 +1,6 @@
+INFO:     Will watch for changes in these directories: ['D:\\Agentic_Honey_Pot']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [26636] using WatchFiles
+INFO:     Started server process [20380]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.

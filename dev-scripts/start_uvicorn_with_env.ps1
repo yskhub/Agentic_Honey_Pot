@@ -1,0 +1,5 @@
+$env:OUTGOING_ENDPOINT = 'https://httpbin.org/post'
+$env:API_KEY = 'test_server_key'
+$env:ADMIN_API_KEY = 'test_admin_key'
+$env:DEV_SERVER_PORT = '8020'
+& 'D:\Agentic_Honey_Pot\.venv\Scripts\python.exe' 'dev-scripts\start_uvicorn_programmatic.py'

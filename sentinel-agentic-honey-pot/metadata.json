@@ -1,0 +1,5 @@
+{
+  "name": "Sentinel Agentic Honey-Pot",
+  "description": "A sophisticated AI-driven honeypot system designed to detect online scams, engage scammers autonomously with a believable human persona, and extract actionable intelligence like UPI IDs, bank accounts, and phishing links.",
+  "requestFramePermissions": []
+}

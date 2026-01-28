@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+alembic
+python-dotenv
+requests
+httpx
+scikit-learn
+joblib
+spacy
+phonenumbers
+python-multipart
+pytest
