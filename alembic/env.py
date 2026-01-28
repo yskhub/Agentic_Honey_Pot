@@ -14,9 +14,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
+# Interpret the config file for Python logging. Be tolerant if logging
+# sections expected by the project's alembic.ini are missing (CI/local
+# environments may not provide logger_sqlalchemy entries). Use fileConfig
+# only when the file exists and the necessary sections can be read.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    try:
+        # Attempt to configure logging from file; guard against missing sections
+        fileConfig(config.config_file_name)
+    except Exception:
+        # Fallback: configure basic logging to avoid KeyError during env import
+        import logging
+        logging.basicConfig(level=logging.INFO)
 
 # import your model's MetaData object here
 from backend.app import db as app_db
