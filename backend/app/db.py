@@ -5,7 +5,15 @@ import os
 from datetime import datetime
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///data/sentinel.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+# Create SQLAlchemy engine with SQLite-specific connect args when using sqlite,
+# otherwise create a normal engine for Postgres/other drivers.
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    # For Postgres and others, enable pool_pre_ping to avoid stale connections
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -53,41 +61,45 @@ class OutgoingMessage(Base):
 
 def init_db():
     from pathlib import Path
-    dbfile = Path(DATABASE_URL.replace("sqlite:///", ""))
-    dbfile.parent.mkdir(parents=True, exist_ok=True)
+
+    # If using sqlite, ensure parent dir exists
+    if DATABASE_URL.startswith("sqlite"):
+        dbfile = Path(DATABASE_URL.replace("sqlite:///", ""))
+        dbfile.parent.mkdir(parents=True, exist_ok=True)
+
     # Create all tables (new tables will be created automatically)
     Base.metadata.create_all(bind=engine)
 
-    # Best-effort migration: add missing columns to existing tables.
-    # Using PRAGMA table_info to detect missing columns and ALTER if needed.
-    try:
-        with engine.begin() as conn:
-            # conversation_state additions
-            try:
-                res = conn.execute("PRAGMA table_info('conversation_state')")
-                cols = [r[1] for r in res.fetchall()]
-            except Exception:
-                cols = []
+    # Best-effort migration: SQLite-only ALTER hacks to add missing columns
+    # (Postgres should use Alembic revisions instead.)
+    if DATABASE_URL.startswith("sqlite"):
+        try:
+            with engine.begin() as conn:
+                try:
+                    res = conn.execute("PRAGMA table_info('conversation_state')")
+                    cols = [r[1] for r in res.fetchall()]
+                except Exception:
+                    cols = []
 
-            if cols:
-                if 'messages_json' not in cols:
-                    try:
-                        conn.execute("ALTER TABLE conversation_state ADD COLUMN messages_json TEXT")
-                    except Exception:
-                        pass
-                if 'slots_json' not in cols:
-                    try:
-                        conn.execute("ALTER TABLE conversation_state ADD COLUMN slots_json TEXT")
-                    except Exception:
-                        pass
-                if 'human_override' not in cols:
-                    try:
-                        conn.execute("ALTER TABLE conversation_state ADD COLUMN human_override BOOLEAN DEFAULT 0")
-                    except Exception:
-                        pass
-    except Exception:
-        # Silently ignore migration failures (best-effort for local/dev)
-        pass
+                if cols:
+                    if 'messages_json' not in cols:
+                        try:
+                            conn.execute("ALTER TABLE conversation_state ADD COLUMN messages_json TEXT")
+                        except Exception:
+                            pass
+                    if 'slots_json' not in cols:
+                        try:
+                            conn.execute("ALTER TABLE conversation_state ADD COLUMN slots_json TEXT")
+                        except Exception:
+                            pass
+                    if 'human_override' not in cols:
+                        try:
+                            conn.execute("ALTER TABLE conversation_state ADD COLUMN human_override BOOLEAN DEFAULT 0")
+                        except Exception:
+                            pass
+        except Exception:
+            # Silently ignore migration failures (best-effort for local/dev)
+            pass
 
 def get_db():
     db = SessionLocal()

@@ -307,26 +307,26 @@ def admin_outgoing_ui():
         return HTMLResponse(html)
 
 
-            @router.get('/v1/admin/outgoing.csv')
-            def export_outgoing(status: Optional[str] = None, q: Optional[str] = None, page: int = 1, page_size: int = 1000, db: Session = Depends(get_db), admin: bool = Depends(require_admin_key)):
-                qdb = db.query(DBOutgoing)
-                if status:
-                    qdb = qdb.filter(DBOutgoing.status == status)
-                if q:
-                    like = f"%{q}%"
-                    qdb = qdb.filter(DBOutgoing.content.ilike(like) | DBOutgoing.session_id.ilike(like))
-                offset = (max(1, page) - 1) * page_size
-                rows = qdb.order_by(DBOutgoing.created_at.desc()).offset(offset).limit(page_size).all()
+@router.get('/v1/admin/outgoing.csv')
+def export_outgoing(status: Optional[str] = None, q: Optional[str] = None, page: int = 1, page_size: int = 1000, db: Session = Depends(get_db), admin: bool = Depends(require_admin_key)):
+    qdb = db.query(DBOutgoing)
+    if status:
+        qdb = qdb.filter(DBOutgoing.status == status)
+    if q:
+        like = f"%{q}%"
+        qdb = qdb.filter(DBOutgoing.content.ilike(like) | DBOutgoing.session_id.ilike(like))
+    offset = (max(1, page) - 1) * page_size
+    rows = qdb.order_by(DBOutgoing.created_at.desc()).offset(offset).limit(page_size).all()
 
-                def iter_csv():
-                    si = StringIO()
-                    writer = csv.writer(si)
-                    writer.writerow(['id', 'sessionId', 'status', 'created_at', 'content'])
-                    yield si.getvalue()
-                    si.seek(0); si.truncate(0)
-                    for r in rows:
-                        writer.writerow([r.id, r.session_id, r.status, r.created_at.isoformat() if r.created_at else '', r.content])
-                        yield si.getvalue()
-                        si.seek(0); si.truncate(0)
+    def iter_csv():
+        si = StringIO()
+        writer = csv.writer(si)
+        writer.writerow(['id', 'sessionId', 'status', 'created_at', 'content'])
+        yield si.getvalue()
+        si.seek(0); si.truncate(0)
+        for r in rows:
+            writer.writerow([r.id, r.session_id, r.status, r.created_at.isoformat() if r.created_at else '', r.content])
+            yield si.getvalue()
+            si.seek(0); si.truncate(0)
 
-                return StreamingResponse(iter_csv(), media_type='text/csv')
+    return StreamingResponse(iter_csv(), media_type='text/csv')
