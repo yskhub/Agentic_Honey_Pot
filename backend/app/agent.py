@@ -7,6 +7,8 @@ import json
 import re
 
 from .db import Message as DBMessage, ConversationState as CSModel, OutgoingMessage as OutMsg
+from .audit import append_event
+from backend.safety.safety_rules import check_reply_safety
 
 PERSONA_DIR = os.path.join(os.path.dirname(__file__), 'personas')
 
@@ -45,6 +47,24 @@ def simple_match(text: str, persona: Dict) -> (str, Dict):
 def respond(session_id: str, incoming_text: str, db: Optional[object] = None, persona_id: str = 'honeypot_default') -> Dict:
     persona = load_persona(persona_id)
     reply, slots = simple_match(incoming_text, persona)
+
+    # Run safety checks on the generated reply. If the reply is unsafe,
+    # replace with a safe fallback or a redacted version.
+    try:
+        safe_res = check_reply_safety(reply)
+        if not safe_res.get('allowed', True):
+            append_event('safety_blocked_reply', {'sessionId': session_id, 'reason': safe_res.get('reason'), 'original': reply})
+            reply = safe_res.get('sanitized') or "I'm unable to assist with that request."
+        else:
+            # if redacted, use sanitized text
+            if safe_res.get('reason') == 'redacted_digits' and safe_res.get('sanitized'):
+                reply = safe_res.get('sanitized')
+    except Exception:
+        # On safety subsystem failures, prefer to be conservative and leave reply unchanged
+        try:
+            append_event('safety_check_error', {'sessionId': session_id})
+        except Exception:
+            pass
 
     # persist agent message and queue outgoing send if db provided
     if db is not None:

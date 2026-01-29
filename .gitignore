@@ -1,0 +1,15 @@
+# Ignore node modules
+frontend/nextjs/node_modules/
+frontend/nextjs/.next/
+
+# Python virtual env
+.venv/
+
+# SQLite DB
+data/
+
+# Byte-compiled / cache
+__pycache__/
+
+# Logs
+logs/

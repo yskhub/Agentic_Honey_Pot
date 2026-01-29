@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 from .schemas import IngestRequest, IngestResponse
 from .auth import require_api_key, require_admin_key
@@ -7,6 +7,7 @@ from .db import SessionLocal, init_db, Session as DBSess, Message as DBMessage, 
 from sqlalchemy.orm import Session
 from .audit import append_event
 from datetime import datetime
+from .circuit_breaker import outgoing_breaker
 import os
 from .rate_limit import is_allowed, get_usage
 from .callback_queue import enqueue
@@ -20,10 +21,22 @@ import csv
 from io import StringIO
 from backend.phase4.metrics import MESSAGES_TOTAL
 from backend.phase4.metrics import DETECTOR_INVOCATIONS
+from .sse_broker import get_broker
+from fastapi import Request, HTTPException
+import asyncio
+from jose import jwt as jose_jwt, JWTError as JoseJWTError
+from fastapi import Response
+from fastapi.responses import JSONResponse
+from base64 import b64decode
+from typing import Tuple
+from .profiler import get_recent_slow_requests
 
 router = APIRouter()
 
 def send_guvi_callback(payload: dict):
+    if not outgoing_breaker.allow():
+        append_event('guvi_callback_shortcircuited', {'sessionId': payload.get('sessionId')})
+        return {'status': 'shortcircuited'}
     guvi_url = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
     guvi_key = os.getenv("GUVI_API_KEY", "")
     headers = {"Content-Type": "application/json", "x-api-key": guvi_key}
@@ -35,10 +48,18 @@ def send_guvi_callback(payload: dict):
         try:
             resp = requests.post(guvi_url, json=payload, headers=headers, timeout=5)
             resp.raise_for_status()
+            try:
+                outgoing_breaker.record_success()
+            except Exception:
+                pass
             append_event("guvi_callback_sent", {"payload": payload, "status": resp.status_code})
             return {"status": "sent", "code": resp.status_code}
         except Exception as e:
             attempts += 1
+            try:
+                outgoing_breaker.record_failure()
+            except Exception:
+                pass
             append_event("guvi_callback_error", {"attempt": attempts, "error": str(e)})
             import time
             time.sleep(backoff)
@@ -69,6 +90,15 @@ def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), author
     msg = DBMessage(session_id=payload.sessionId, sender=payload.message.sender, text=payload.message.text, timestamp=payload.message.timestamp, raw=payload.message.text)
     db.add(msg)
     db.commit()
+
+    # publish to SSE broker so live UIs can receive updates
+    try:
+        broker = get_broker()
+        # publish payload.message as JSON minimal
+        import json as _json
+        asyncio.get_event_loop().create_task(broker.publish(f'session:{payload.sessionId}', _json.dumps({'sender': payload.message.sender, 'text': payload.message.text, 'timestamp': payload.message.timestamp.isoformat() if payload.message.timestamp else None})))
+    except Exception:
+        pass
     try:
         MESSAGES_TOTAL.inc()
     except Exception:
@@ -315,6 +345,261 @@ def admin_outgoing_ui():
         </html>
         '''
         return HTMLResponse(html)
+
+
+
+@router.get('/admin/ui/sessions')
+def admin_ui_sessions(db: Session = Depends(get_db), admin: bool = Depends(require_admin_key)):
+    rows = db.query(DBSess).order_by(DBSess.created_at.desc()).limit(200).all()
+    out = []
+    for r in rows:
+        out.append({
+            'id': r.id,
+            'persona': r.persona,
+            'created_at': r.created_at.isoformat() if r.created_at else None
+        })
+    return out
+
+
+@router.get('/admin/ui/session/{session_id}')
+def admin_ui_session(session_id: str, db: Session = Depends(get_db), admin: bool = Depends(require_admin_key)):
+    sess = db.query(DBSess).filter(DBSess.id == session_id).first()
+    if not sess:
+        raise HTTPException(status_code=404, detail='session not found')
+    messages = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp).all()
+    extractions = db.query(DBExtraction).filter(DBExtraction.session_id == session_id).all()
+    return {
+        'session': {'id': sess.id, 'persona': sess.persona, 'metadata': sess.metadata_json, 'created_at': sess.created_at.isoformat() if sess.created_at else None},
+        'messages': [{'id': m.id, 'sender': m.sender, 'text': m.text, 'timestamp': m.timestamp.isoformat() if m.timestamp else None} for m in messages],
+        'extractions': [{'id': e.id, 'type': e.type, 'value': e.value, 'confidence': e.confidence} for e in extractions]
+    }
+
+
+@router.get('/admin/ui/session/{session_id}/export.csv')
+def admin_ui_session_export_csv(session_id: str, db: Session = Depends(get_db), admin: bool = Depends(require_admin_key)):
+    messages = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp).all()
+    extractions = db.query(DBExtraction).filter(DBExtraction.session_id == session_id).all()
+
+    def iter_csv():
+        header = 'type,id,sender,text,timestamp,extract_type,extract_value,extract_confidence\n'
+        yield header
+        for m in messages:
+            # for each message, include any extraction rows (or blanks)
+            related = [e for e in extractions if getattr(e, 'message_id', None) == getattr(m, 'id', None)]
+            safe_text = (m.text or '').replace('"', '""')
+            if not related:
+                row = f'message,{m.id},{m.sender},"{safe_text}",{m.timestamp.isoformat() if m.timestamp else ""},,,\n'
+                yield row
+            else:
+                for e in related:
+                    safe_val = (e.value or '').replace('"', '""')
+                    row = f'message,{m.id},{m.sender},"{safe_text}",{m.timestamp.isoformat() if m.timestamp else ""},{e.type},"{safe_val}",{e.confidence}\n'
+                    yield row
+
+    return StreamingResponse(iter_csv(), media_type='text/csv')
+
+
+@router.get('/admin/ui/sse/session/{session_id}')
+async def admin_ui_sse_session(session_id: str, request: Request, db: Session = Depends(get_db)):
+    # accept either admin API key (dev) or a short-lived JWT token via `token` query param
+    api_key = request.headers.get('x-api-key')
+    token = request.query_params.get('token')
+    expected = os.getenv('ADMIN_API_KEY')
+    sse_secret = os.getenv('ADMIN_SSE_SECRET', expected or '')
+
+    authorized = False
+    if expected and api_key == expected:
+        authorized = True
+    if not authorized and token:
+        try:
+            payload = jose_jwt.decode(token, sse_secret, algorithms=['HS256'])
+            # minimal validation: ensure session matches and not expired (jose validates exp)
+            if payload.get('session_id') == session_id:
+                authorized = True
+        except JoseJWTError:
+            authorized = False
+
+    if not authorized:
+        raise HTTPException(status_code=403, detail='Admin credentials required')
+
+    # subscribe to broker channel for this session
+    broker = get_broker()
+
+    async def event_generator():
+        # first, yield existing messages once
+        rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp).all()
+        for r in rows:
+            data = {'type': 'message', 'id': r.id, 'sender': r.sender, 'text': r.text, 'timestamp': r.timestamp.isoformat() if r.timestamp else None}
+            yield f"data: {json.dumps(data)}\n\n"
+
+        # then stream pubsub messages
+        chan = f'session:{session_id}'
+        try:
+            async for msg in broker.subscribe(chan):
+                if await request.is_disconnected():
+                    break
+                try:
+                    # msg may be JSON text
+                    yield f"data: {msg}\n\n"
+                except Exception:
+                    continue
+        except asyncio.CancelledError:
+            return
+
+    return StreamingResponse(event_generator(), media_type='text/event-stream')
+
+
+@router.get('/admin/ui/slow-requests')
+def admin_ui_slow_requests(limit: int = 50, admin: bool = Depends(require_admin_key)):
+    """Admin-only endpoint returning recent slow requests recorded by profiler."""
+    items = get_recent_slow_requests(limit=limit)
+    return {'count': len(items), 'items': items}
+
+
+@router.post('/admin/ui/token')
+def admin_ui_token(request: Request):
+    # Requires admin API key in header. Returns a short-lived HS256 token for SSE use.
+    api_key = request.headers.get('x-api-key')
+    expected = os.getenv('ADMIN_API_KEY')
+    if not expected or api_key != expected:
+        raise HTTPException(status_code=403, detail='Admin credentials required')
+
+    # Read JSON body with optional session_id and expiry seconds
+    try:
+        body = request.json() if hasattr(request, 'json') else None
+    except Exception:
+        body = None
+    session_id = None
+    exp_seconds = 120
+    try:
+        data = request._body or {}
+    except Exception:
+        data = None
+    # use query params fallback
+    params = request.query_params
+    if 'session_id' in params:
+        session_id = params.get('session_id')
+    # construct token
+    from time import time
+    sse_secret = os.getenv('ADMIN_SSE_SECRET', expected)
+    payload = {'iat': int(time()), 'exp': int(time()) + exp_seconds}
+    if session_id:
+        payload['session_id'] = session_id
+    try:
+        token = jose_jwt.encode(payload, sse_secret, algorithm='HS256')
+        return {'token': token, 'expires_in': exp_seconds}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail='token_generation_failed')
+
+
+@router.post('/admin/ui/token-proxy')
+def admin_ui_token_proxy(request: Request):
+    """Issue a short-lived SSE token to authenticated judge clients.
+
+    Authentication options:
+    - `x-judge-token` header matching `JUDGE_SHARED_SECRET` env var
+    - HTTP Basic auth with username `judge` and password = `JUDGE_SHARED_SECRET`
+    Returns: {token, expires_in}
+    """
+    judge_secret = os.getenv('JUDGE_SHARED_SECRET')
+    if not judge_secret:
+        raise HTTPException(status_code=501, detail='Judge proxy not configured')
+
+    # Check header
+    hdr = request.headers.get('x-judge-token')
+    auth_ok = False
+    if hdr and hdr == judge_secret:
+        auth_ok = True
+
+    # Check basic auth
+    if not auth_ok:
+        auth = request.headers.get('authorization')
+        if auth and auth.lower().startswith('basic '):
+            try:
+                creds = b64decode(auth.split(' ',1)[1]).decode('utf-8')
+                user, pwd = creds.split(':',1)
+                if pwd == judge_secret and user == 'judge':
+                    auth_ok = True
+            except Exception:
+                auth_ok = False
+
+    if not auth_ok:
+        raise HTTPException(status_code=403, detail='Judge credentials required')
+
+    params = request.query_params
+    session_id = params.get('session_id')
+    exp_seconds = int(os.getenv('ADMIN_SSE_TOKEN_TTL', '120'))
+    from time import time
+    sse_secret = os.getenv('ADMIN_SSE_SECRET', os.getenv('ADMIN_API_KEY', ''))
+    payload = {'iat': int(time()), 'exp': int(time()) + exp_seconds}
+    if session_id:
+        payload['session_id'] = session_id
+    try:
+        token = jose_jwt.encode(payload, sse_secret, algorithm='HS256')
+        append_event('token_issued', {'session_id': session_id})
+        return {'token': token, 'expires_in': exp_seconds}
+    except Exception:
+        raise HTTPException(status_code=500, detail='token_generation_failed')
+
+
+@router.options('/admin/ui/judge-login')
+def admin_ui_judge_login_options(request: Request):
+    origin = request.headers.get('origin') or '*'
+    headers = {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true'
+    }
+    return JSONResponse({'ok': True}, headers=headers)
+
+
+@router.post('/admin/ui/judge-login')
+def admin_ui_judge_login(request: Request, body: dict = None):
+    """Authenticate a judge username/password and return a short-lived SSE token.
+
+    Configure judge users via env `JUDGE_USERS` as `user1:pass1,user2:pass2`.
+    This endpoint returns `{token, expires_in}` on success.
+    """
+    users_env = os.getenv('JUDGE_USERS', '')
+    # Debug: log incoming headers and body to help diagnose CORS/fetch issues
+    try:
+        hdrs = {k: v for k, v in request.headers.items() if k.lower() in ('origin','content-type','referer')}
+        print('DEBUG judge_login headers:', hdrs)
+        print('DEBUG judge_login body:', body)
+    except Exception:
+        pass
+    users = {}
+    for pair in [p for p in users_env.split(',') if p.strip()]:
+        if ':' in pair:
+            u, p = pair.split(':', 1)
+            users[u] = p
+
+    if not body:
+        raise HTTPException(status_code=400, detail='username/password required')
+    username = body.get('username')
+    password = body.get('password')
+    session_id = body.get('session_id')
+    if not username or not password:
+        raise HTTPException(status_code=400, detail='username/password required')
+    if username not in users or users.get(username) != password:
+        raise HTTPException(status_code=403, detail='invalid credentials')
+
+    # issue token
+    from time import time
+    exp_seconds = int(os.getenv('ADMIN_SSE_TOKEN_TTL', '120'))
+    sse_secret = os.getenv('ADMIN_SSE_SECRET', os.getenv('ADMIN_API_KEY', ''))
+    payload = {'iat': int(time()), 'exp': int(time()) + exp_seconds, 'judge': username}
+    if session_id:
+        payload['session_id'] = session_id
+    try:
+        token = jose_jwt.encode(payload, sse_secret, algorithm='HS256')
+        append_event('judge_login', {'judge': username, 'session_id': session_id})
+        origin = request.headers.get('origin') or ''
+        headers = {'Access-Control-Allow-Origin': origin or '*', 'Access-Control-Allow-Credentials': 'true'}
+        return JSONResponse({'token': token, 'expires_in': exp_seconds}, headers=headers)
+    except Exception:
+        raise HTTPException(status_code=500, detail='token_generation_failed')
 
 
 @router.get('/v1/admin/outgoing.csv')

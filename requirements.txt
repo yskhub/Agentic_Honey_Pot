@@ -15,3 +15,6 @@ pytest
 python-jose[cryptography]
 jwcrypto
 prometheus_client
+streamlit
+pandas
+redis>=4.7.0
