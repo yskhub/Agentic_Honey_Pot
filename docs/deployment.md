@@ -81,6 +81,20 @@ Notes:
 - Store rotation events in an external, immutable store (e.g., cloud KMS audit logs) if available.
 - If you need assistance, I can add a small rotation helper script that performs the dual-key verify-and-sign transition.
 
+PowerShell rotate helper
+
+For Windows operators we provide a PowerShell helper `dev-scripts/rotate_audit_key.ps1` which mirrors the bash helper but prints the new key by default and only writes to an env file when `-Write` is provided. Example usage:
+
+```powershell
+# Generate and print new key (do NOT commit)
+.\dev-scripts\rotate_audit_key.ps1 -Generate
+
+# Generate and append to .env (avoid committing .env to VCS)
+.\dev-scripts\rotate_audit_key.ps1 -Generate -Write -EnvFile .env
+```
+
+Best practice: copy the printed key into your secret manager (Azure Key Vault, AWS Secrets Manager, HashiCorp Vault, etc.) instead of committing it to `.env`.
+
 JWT / JWKS admin authentication
 
 - You can configure JWKS/OIDC-based admin authentication by setting the following environment variables:
