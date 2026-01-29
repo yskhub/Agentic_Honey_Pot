@@ -60,4 +60,22 @@ jobs:
           # Apply Alembic migrations and verify current revision before running tests
           alembic upgrade head
           alembic current
+
+          # Fail if repository head != current DB revision
+          expected=$(alembic heads | awk 'NR==1{print $1}')
+          current=$(alembic current | awk 'NR==1{print $1}')
+          echo "expected=$expected current=$current"
+          if [ "$expected" != "$current" ]; then
+            echo "alembic head mismatch: expected $expected but current $current" >&2
+            exit 1
+          fi
+
+          # Smoke-check: ensure autogenerate produces no diffs
+          alembic revision --autogenerate -m "ci-autogen" || true
+          if [ -n "$(git status --porcelain alembic/versions)" ]; then
+            echo "Alembic autogenerate produced changes; please review and commit migrations." >&2
+            git --no-pager status --porcelain alembic/versions
+            exit 1
+          fi
+
           pytest -q
