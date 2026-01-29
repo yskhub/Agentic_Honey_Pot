@@ -18,6 +18,8 @@ from typing import Optional
 from fastapi.responses import StreamingResponse
 import csv
 from io import StringIO
+from backend.phase4.metrics import MESSAGES_TOTAL
+from backend.phase4.metrics import DETECTOR_INVOCATIONS
 
 router = APIRouter()
 
@@ -67,8 +69,16 @@ def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), author
     msg = DBMessage(session_id=payload.sessionId, sender=payload.message.sender, text=payload.message.text, timestamp=payload.message.timestamp, raw=payload.message.text)
     db.add(msg)
     db.commit()
+    try:
+        MESSAGES_TOTAL.inc()
+    except Exception:
+        pass
 
     # run detector
+    try:
+        DETECTOR_INVOCATIONS.inc()
+    except Exception:
+        pass
     det = detect(payload.message.text)
     score = det["score"]
     route = score >= float(os.getenv("DETECTOR_THRESHOLD", 0.5))

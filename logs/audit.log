@@ -170,3 +170,45 @@ a1fba32f068ee25168cdd1abccfcdece4a26eb4ebfb8f75ec396f101aa7b8c85
 df5912f0ea7e29c6a4e73c8136c127fd2ccf29434d68b683fa6ebf46595e67ae
 {"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-28T23:28:30.208257Z","type":"outgoing_sent_simulated"}
 f0bcdc119f72d97e4b95632a2c2b80868adbacbfcda7ae07a5235cd3e7d9b279
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-28T23:41:42.223904Z","type":"ingest_message"}
+8832365c9c7c47b42bc5f4db28480f33134c8ebb9265f5f41280ec70c357f668
+{"payload":{"reply":"Please provide your UPI ID (example: name@bank) to proceed.","sessionId":"e2e-session-001"},"ts":"2026-01-28T23:41:42.231701Z","type":"agent_auto_reply"}
+c75e2ec9d60f410a88b1cdbdcc7d5bfe141d74c6f2050ed58d021b2e3737c928
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-28T23:41:42.243783Z","type":"outgoing_sent_simulated"}
+3a4350e87aa8c75074142a60be1df2dee82ea2e306e4062c6b29eb6e2b005cee
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-28T23:41:42.247785Z","type":"outgoing_sent_simulated"}
+fbe88b20589641a8fc9d61997570dc4838b69e51ba9dfc5dfbef6962436fc97e
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-28T23:41:42.251238Z","type":"outgoing_sent_simulated"}
+915f61de11ff396ef12c73b86a07a744fdba217323fdbcdda6c8b3cd70de0713
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-28T23:47:11.403655Z","type":"ingest_message"}
+9613b588692e285bfe83ed96213b5cff9ba0a61616cc8e6c2a528f08ccd479f5
+{"payload":{"reply":"Please provide your UPI ID (example: name@bank) to proceed.","sessionId":"e2e-session-001"},"ts":"2026-01-28T23:47:11.411276Z","type":"agent_auto_reply"}
+51cd1e36546c91fa29b819f42916a3d675af68a2c48f9e7cea487baf42e7c561
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-28T23:47:11.423183Z","type":"outgoing_sent_simulated"}
+9a0b37e859be11531ea8ac418e43c56a4f38e9103b3027cd1ca76a162cfa7ea9
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-28T23:47:11.427702Z","type":"outgoing_sent_simulated"}
+647b526e63df4d5acc418bd32d4cd96c1ae3d952b23ffd112f02f1b301248d0f
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-28T23:47:11.429700Z","type":"outgoing_sent_simulated"}
+a99866b2873530b0392cc0e74a2e96b1cd56a8be7bf3d8f77aabe5e9b7711d5b
+{"payload":{"id":1,"sessionId":"test123"},"ts":"2026-01-29T01:59:21.477049Z","type":"outgoing_sent_simulated"}
+9fbe5d3856a2907a73df5e0b51d9130b24521fe33c69743661dd501b90fc2a88
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-29T01:59:28.807849Z","type":"ingest_message"}
+6127788c65d45c1ea5fd3fc8e158a2652c6c8e9ea0e59c3e2fcccdaa2573dd22
+{"payload":{"reply":"Could you share your UPI ID so I can check the payment?","sessionId":"e2e-session-001"},"ts":"2026-01-29T01:59:28.817689Z","type":"agent_auto_reply"}
+0a01a4c901a0d7836cca691c6515233ede7d2401de0f92dc578e27a37070573e
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-29T01:59:28.829234Z","type":"outgoing_sent_simulated"}
+53e324f6a76070cd67a3427191708b7feb79438ae49a060f0ff3620bb57c7924
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-29T01:59:28.835219Z","type":"outgoing_sent_simulated"}
+69c134517a0704efb1db3cdaba156f7c2dfa60cd9a3499ddfb5e1df24e7a82bb
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-29T01:59:28.838215Z","type":"outgoing_sent_simulated"}
+b3ae56a91d494210cd8c8f43b1f564b026ec408109db5ad25254b76db1b200ee
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-29T02:20:14.422882Z","type":"ingest_message"}
+855b5d62b2882dd4d1e776ceec390ef9f12c8ded6aa346aef876569af029d9b1
+{"payload":{"reply":"Please provide your UPI ID (example: name@bank) to proceed.","sessionId":"e2e-session-001"},"ts":"2026-01-29T02:20:14.433624Z","type":"agent_auto_reply"}
+27f2c2c001cf65fb53fdbaa54f5375d02d0d5a871ed468abbeb44e60d2eba7a5
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-29T02:20:14.451248Z","type":"outgoing_sent_simulated"}
+3d21c9320b00c2288914050265e32e5060072277177a2b6c935d8192c0d37a2c
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-29T02:20:14.455250Z","type":"outgoing_sent_simulated"}
+f3a2643b77dc163995d02c159790ced23b08ebf64a05f5bbd23e6da843a55c57
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-29T02:20:14.458840Z","type":"outgoing_sent_simulated"}
+3e0d62a058442ec0096365f51d18fe4b38397c51a75ad37679c54885702f7411

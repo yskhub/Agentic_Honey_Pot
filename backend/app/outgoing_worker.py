@@ -7,6 +7,7 @@ from .db import SessionLocal, OutgoingMessage
 from .audit import append_event
 import json
 from pathlib import Path
+from backend.phase4.metrics import OUTGOING_ATTEMPTS, OUTGOING_SUCCESS, OUTGOING_FAILURE
 
 # Place logs in repository `logs/` directory (resolve repo root reliably)
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +16,15 @@ LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 def _write_http_log(entry: dict):
+    try:
+        # prefer structured logging via sentinel.http if configured
+        import logging
+        logger = logging.getLogger('sentinel.http')
+        if logger and logger.handlers:
+            logger.info(entry)
+            return
+    except Exception:
+        pass
     try:
         with open(LOG_PATH, 'a', encoding='utf-8') as f:
             f.write(json.dumps(entry, default=str) + '\n')
@@ -35,6 +45,10 @@ def _process_one(db):
                 headers = {"Content-Type": "application/json"}
                 if OUT_API_KEY:
                     headers["x-api-key"] = OUT_API_KEY
+                try:
+                    OUTGOING_ATTEMPTS.inc()
+                except Exception:
+                    pass
                 # record attempt
                 append_event("outgoing_attempt", {"id": m.id, "sessionId": m.session_id, "endpoint": OUT_ENDPOINT})
                 _write_http_log({"ts": datetime.utcnow().isoformat(), "event": "request", "id": m.id, "sessionId": m.session_id, "endpoint": OUT_ENDPOINT, "request": payload})
@@ -50,8 +64,16 @@ def _process_one(db):
                 resp.raise_for_status()
                 m.status = 'sent'
                 append_event("outgoing_sent", {"id": m.id, "sessionId": m.session_id, "status": status_code, "response_body": text})
+                try:
+                    OUTGOING_SUCCESS.inc()
+                except Exception:
+                    pass
             else:
                 # no endpoint configured: mark as simulated sent
+                try:
+                    OUTGOING_ATTEMPTS.inc()
+                except Exception:
+                    pass
                 m.status = 'sent'
                 append_event("outgoing_sent_simulated", {"id": m.id, "sessionId": m.session_id})
                 _write_http_log({"ts": datetime.utcnow().isoformat(), "event": "simulated_sent", "id": m.id, "sessionId": m.session_id, "content": m.content})
@@ -63,7 +85,7 @@ def _process_one(db):
                 m.status = 'failed'
                 db.add(m)
                 db.commit()
-            except Exception as e:
+            except Exception:
                 # log error
                 _write_http_log({"ts": datetime.utcnow().isoformat(), "event": "error", "id": getattr(m, 'id', None), "sessionId": getattr(m, 'session_id', None), "error": str(e)})
                 try:
@@ -75,7 +97,11 @@ def _process_one(db):
                         db.rollback()
                     except Exception:
                         pass
-                append_event("outgoing_send_error", {"id": getattr(m, 'id', None), "error": str(e)})
+            append_event("outgoing_send_error", {"id": getattr(m, 'id', None), "error": str(e)})
+            try:
+                OUTGOING_FAILURE.inc()
+            except Exception:
+                pass
 
 
 def _worker_loop():

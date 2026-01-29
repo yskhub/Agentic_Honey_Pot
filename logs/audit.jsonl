@@ -1,0 +1,15 @@
+{"message": "{'ts': '2026-01-28T23:47:11.403655Z', 'type': 'ingest_message', 'payload': {'sessionId': 'e2e-session-001', 'score': 1.0, 'reasons': ['keywords:upi', 'upi_phrase_detected', 'payment_phrase_detected', 'upi_detected']}}"}
+{"message": "{'ts': '2026-01-28T23:47:11.411276Z', 'type': 'agent_auto_reply', 'payload': {'sessionId': 'e2e-session-001', 'reply': 'Please provide your UPI ID (example: name@bank) to proceed.'}}"}
+{"message": "{'ts': '2026-01-28T23:47:11.423183Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 1, 'sessionId': 'agent-test-session'}}"}
+{"message": "{'ts': '2026-01-28T23:47:11.427702Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 2, 'sessionId': 'e2e-session-001'}}"}
+{"message": "{'ts': '2026-01-28T23:47:11.429700Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 3, 'sessionId': 'test123'}}"}
+{"message": "{'ts': '2026-01-29T01:59:28.807849Z', 'type': 'ingest_message', 'payload': {'sessionId': 'e2e-session-001', 'score': 1.0, 'reasons': ['keywords:upi', 'upi_phrase_detected', 'payment_phrase_detected', 'upi_detected']}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T01:59:28.817689Z', 'type': 'agent_auto_reply', 'payload': {'sessionId': 'e2e-session-001', 'reply': 'Could you share your UPI ID so I can check the payment?'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T01:59:28.829234Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 1, 'sessionId': 'agent-test-session'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T01:59:28.835219Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 2, 'sessionId': 'e2e-session-001'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T01:59:28.838215Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 3, 'sessionId': 'test123'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T02:20:14.422882Z', 'type': 'ingest_message', 'payload': {'sessionId': 'e2e-session-001', 'score': 1.0, 'reasons': ['keywords:upi', 'upi_phrase_detected', 'payment_phrase_detected', 'upi_detected']}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T02:20:14.433624Z', 'type': 'agent_auto_reply', 'payload': {'sessionId': 'e2e-session-001', 'reply': 'Please provide your UPI ID (example: name@bank) to proceed.'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T02:20:14.451248Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 1, 'sessionId': 'agent-test-session'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T02:20:14.455250Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 2, 'sessionId': 'e2e-session-001'}, '_audit_signed_with_next': False}"}
+{"message": "{'ts': '2026-01-29T02:20:14.458840Z', 'type': 'outgoing_sent_simulated', 'payload': {'id': 3, 'sessionId': 'test123'}, '_audit_signed_with_next': False}"}

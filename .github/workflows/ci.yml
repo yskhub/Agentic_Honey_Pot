@@ -34,6 +34,13 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Check AUDIT_HMAC_KEY secret (production)
+        if: github.ref == 'refs/heads/main'
+        env:
+          AUDIT_HMAC_KEY: ${{ secrets.AUDIT_HMAC_KEY }}
+        run: |
+          if [ -z "$AUDIT_HMAC_KEY" ]; then echo "Missing AUDIT_HMAC_KEY secret" >&2; exit 1; fi
+
       - name: Run tests
         run: |
           pytest -q
@@ -92,6 +99,13 @@ jobs:
           python -m venv .venv
           . .venv/bin/activate
           pip install -r requirements.txt
+
+      - name: Check AUDIT_HMAC_KEY secret (production)
+        if: github.ref == 'refs/heads/main'
+        env:
+          AUDIT_HMAC_KEY: ${{ secrets.AUDIT_HMAC_KEY }}
+        run: |
+          if [ -z "$AUDIT_HMAC_KEY" ]; then echo "Missing AUDIT_HMAC_KEY secret" >&2; exit 1; fi
       - name: Run tests
         run: |
           . .venv/bin/activate

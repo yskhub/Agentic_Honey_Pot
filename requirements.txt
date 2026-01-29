@@ -14,3 +14,4 @@ python-multipart
 pytest
 python-jose[cryptography]
 jwcrypto
+prometheus_client
