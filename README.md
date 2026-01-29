@@ -1,3 +1,8 @@
+# Agentic Honey Pot
+
+![Postgres integration](https://github.com/yskhub/Agentic_Honey_Pot/actions/workflows/integration-postgres.yml/badge.svg)
+
+This repository contains the SentinelTrap honeypot (FastAPI) with phased development. See `docs/` for deployment and operational notes.
 # Agentic Honey Pot — Backend
 
 Quick start (dev)
