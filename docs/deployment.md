@@ -62,6 +62,25 @@ Operational notes
 - Migrations: use Alembic (`alembic/`) added to this repo. On the host, run `alembic upgrade head` after pulling schema changes.
 - Security: store secrets in a secret manager or environment variables; avoid embedding them in the unit file for production.
 
+Healthcheck
+
+- The container image includes an HTTP healthcheck that probes the app's `/health` endpoint. The Dockerfile defines a `HEALTHCHECK` which expects a successful 2xx response from `http://127.0.0.1:8030/health`.
+- Kubernetes, Docker Swarm, or systemd service monitors can use this endpoint to determine container/service health. Ensure your orchestration readiness/liveness probes target `/health` on port `8030`.
+
+Audit HMAC key (`AUDIT_HMAC_KEY`) and rotation
+
+- The audit log entries are HMAC-signed using the `AUDIT_HMAC_KEY` environment variable. This provides tamper-evidence for append-only audit logs. Keep the key secret (use a secret manager or encrypted env-store).
+- Key rotation procedure (recommended):
+	1. Generate a new secure key and store it in your secret manager as `AUDIT_HMAC_KEY_NEXT` or similar.
+	2. Deploy the application with both `AUDIT_HMAC_KEY` (current) and `AUDIT_HMAC_KEY_NEXT` (new) set in the environment. The running code will verify entries using either key and sign new entries with the new key when you flip.
+	3. After a transition period, update running instances to only use the new `AUDIT_HMAC_KEY` value.
+	4. Revoke the old key from your secret manager and archive any required rotation audit trail notes.
+
+Notes:
+- Rotate keys regularly (90 days is a common baseline) and after any suspected compromise.
+- Store rotation events in an external, immutable store (e.g., cloud KMS audit logs) if available.
+- If you need assistance, I can add a small rotation helper script that performs the dual-key verify-and-sign transition.
+
 JWT / JWKS admin authentication
 
 - You can configure JWKS/OIDC-based admin authentication by setting the following environment variables:
