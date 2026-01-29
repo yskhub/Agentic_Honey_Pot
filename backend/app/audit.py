@@ -21,6 +21,15 @@ HMAC_KEY = os.getenv("AUDIT_HMAC_KEY", None)
 HMAC_KEY_NEXT = os.getenv("AUDIT_HMAC_KEY_NEXT", None)
 USE_NEXT_FOR_SIGN = os.getenv("AUDIT_HMAC_KEY_USE_NEXT", "0") == "1"
 
+# For local development and tests, fall back to a well-known default key
+# so audit signing doesn't raise. In production, set `AUDIT_HMAC_KEY` explicitly.
+if not HMAC_KEY and not HMAC_KEY_NEXT:
+    HMAC_KEY = "change_this_secret"
+    try:
+        _audit_logger.warning("AUDIT_HMAC_KEY not set; using insecure default for dev/tests")
+    except Exception:
+        pass
+
 
 def _sign_with_key(data: bytes, key: str) -> str:
     return hmac.new(key.encode("utf-8"), data, hashlib.sha256).hexdigest()
