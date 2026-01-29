@@ -1,17 +1,34 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from .routes import router
 from .db import init_db
 from dotenv import load_dotenv
 import os
 from .callback_queue import start_worker
 from .outgoing_worker import start_outgoing_worker
+from backend.phase4.metrics import metrics_payload
+from backend.logging_config import setup_logging
 
 load_dotenv()
+setup_logging()
 init_db()
 
 app = FastAPI(title="SentinelTrap Honeypot")
 
 app.include_router(router)
+
+
+@app.get('/metrics')
+def metrics():
+    try:
+        data = metrics_payload()
+        return Response(content=data, media_type='text/plain')
+    except Exception:
+        return Response(content=b'', media_type='text/plain')
+
+
+@app.get('/health')
+def health():
+    return {"ok": True}
 
 @app.on_event("startup")
 def startup_event():

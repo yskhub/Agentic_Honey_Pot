@@ -9,13 +9,15 @@ set -euo pipefail
 ENV_FILE=".env"
 NEW_KEY_FILE=""
 GENERATE=0
+WRITE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --env-file) ENV_FILE="$2"; shift 2;;
     --new-key-file) NEW_KEY_FILE="$2"; shift 2;;
     --generate) GENERATE=1; shift;;
-    -h|--help) echo "Usage: $0 [--generate] [--new-key-file PATH] [--env-file FILE]"; exit 0;;
+    --write) WRITE=1; shift;;
+    -h|--help) echo "Usage: $0 [--generate] [--new-key-file PATH] [--env-file FILE] [--write]"; exit 0;;
     *) echo "Unknown arg: $1"; exit 1;;
   esac
 done
@@ -49,19 +51,27 @@ fi
 
 echo "Generated/loaded new AUDIT HMAC key (first 8 chars): ${NEW_KEY:0:8}..."
 
-echo "Writing dual-key entries to $ENV_FILE (appends)."
-cat >> "$ENV_FILE" <<EOF
+if [[ $WRITE -eq 1 ]]; then
+  echo "Writing dual-key entries to $ENV_FILE (appends)."
+  cat >> "$ENV_FILE" <<EOF
 # Added by dev-scripts/rotate_audit_key.sh - next audit HMAC key
 AUDIT_HMAC_KEY_NEXT=${NEW_KEY}
 EOF
+  echo "Wrote AUDIT_HMAC_KEY_NEXT to $ENV_FILE"
+else
+  echo "New key (do NOT commit to VCS):"
+  echo "$NEW_KEY"
+  echo "(To append into $ENV_FILE run with --write, or copy this value into your secret manager.)"
+fi
 
 echo "Done. Next steps:
-1) Deploy application instances with both AUDIT_HMAC_KEY (current) and AUDIT_HMAC_KEY_NEXT set in environment or secret manager.
-2) Allow traffic for a short transition period so running instances verify existing entries and sign new ones with the new key once flipped.
-3) When ready, rotate: set AUDIT_HMAC_KEY to the value of AUDIT_HMAC_KEY_NEXT in your secret manager, remove AUDIT_HMAC_KEY_NEXT, and redeploy.
-4) Revoke the old key from your secret store and log the rotation event in your KMS audit logs.
+1) Store the new key in your secret manager; avoid committing secrets to source control.
+2) Deploy application instances with both AUDIT_HMAC_KEY (current) and AUDIT_HMAC_KEY_NEXT set in the environment.
+3) Allow a short transition period so running instances verify existing entries and begin signing with the new key after you flip the signer flag.
+4) When ready, set AUDIT_HMAC_KEY to the value of AUDIT_HMAC_KEY_NEXT in your secret manager, remove AUDIT_HMAC_KEY_NEXT, and redeploy.
+5) Revoke the old key from your secret store and log the rotation event in your KMS audit logs.
 "
 
-echo "If you want, commit $ENV_FILE to your deploy pipeline or copy the new key into your secret manager now."
+echo "Copy the new key into your secret manager now. Do not commit the key to the repo or tracked env files."
 
 exit 0
