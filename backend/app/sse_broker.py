@@ -22,11 +22,25 @@ class MemoryBroker:
         self.channels.setdefault(channel, q)
         try:
             while True:
-                msg = await q.get()
-                yield msg
+                # wait with timeout to avoid blocking forever
+                try:
+                    msg = await asyncio.wait_for(q.get(), timeout=1.0)
+                    yield msg
+                except asyncio.TimeoutError:
+                    # no message; yield control back to caller loop
+                    await asyncio.sleep(0)
+                    continue
         finally:
             # best-effort cleanup
             pass
+
+    async def get_message(self, channel: str, timeout: float = 1.0):
+        q = self.channels.setdefault(channel, asyncio.Queue())
+        try:
+            msg = await asyncio.wait_for(q.get(), timeout=timeout)
+            return msg
+        except asyncio.TimeoutError:
+            return None
 
 
 class RedisBroker:
@@ -56,6 +70,20 @@ class RedisBroker:
         except Exception:
             # fallback: nothing
             return
+
+    async def get_message(self, channel: str, timeout: float = 1.0):
+        try:
+            pubsub = self._client.pubsub()
+            await pubsub.subscribe(channel)
+            msg = await pubsub.get_message(ignore_subscribe_messages=True, timeout=timeout)
+            if msg and msg.get('type') == 'message':
+                data = msg.get('data')
+                if isinstance(data, bytes):
+                    data = data.decode('utf-8')
+                return data
+            return None
+        except Exception:
+            return None
 
 
 _broker = None

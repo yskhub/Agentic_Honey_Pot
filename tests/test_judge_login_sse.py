@@ -38,10 +38,16 @@ def test_judge_login_and_sse_stream():
     # request SSE stream for the session using token and ensure we receive the inserted message
     sse_url = f'/admin/ui/sse/session/test-session-sse?token={token}'
     found = False
+    import time as _time
     with client.stream('GET', sse_url) as resp:
         assert resp.status_code == 200
-        for raw in resp.iter_lines(timeout=2):
+        start = _time.time()
+        # Response.iter_lines on this environment doesn't accept a timeout kwarg,
+        # so iterate without it and enforce a manual timeout.
+        for raw in resp.iter_lines():
             if not raw:
+                if _time.time() - start > 5:
+                    break
                 continue
             try:
                 line = raw.decode('utf-8')
@@ -52,5 +58,7 @@ def test_judge_login_and_sse_stream():
                 if payload.get('text') == 'hello-from-test':
                     found = True
                     break
+            if _time.time() - start > 5:
+                break
 
     assert found, 'Expected SSE message not received'

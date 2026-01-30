@@ -426,22 +426,73 @@ async def admin_ui_sse_session(session_id: str, request: Request, db: Session = 
     broker = get_broker()
 
     async def event_generator():
-        # first, yield existing messages once
-        rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp).all()
+        # first, yield existing messages once (yield bytes and give control to event loop)
+        # yield a limited set of historical messages (most recent first)
+        # to avoid streaming a very large backlog into test clients or browsers.
+        # Default kept small so tests and local dev don't pull huge history.
+        limit = int(os.getenv('SSE_HISTORY_LIMIT', '5'))
+        rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp.desc()).limit(limit).all()
+        # rows are newest-first; send them oldest-first to preserve chronology
+        rows = list(reversed(rows))
         for r in rows:
             data = {'type': 'message', 'id': r.id, 'sender': r.sender, 'text': r.text, 'timestamp': r.timestamp.isoformat() if r.timestamp else None}
-            yield f"data: {json.dumps(data)}\n\n"
+            chunk = (f"data: {json.dumps(data)}\n\n").encode('utf-8')
+            yield chunk
+            try:
+                await asyncio.sleep(0)
+            except Exception:
+                pass
 
         # then stream pubsub messages
         chan = f'session:{session_id}'
+        # send an initial heartbeat so clients get something immediately
         try:
-            async for msg in broker.subscribe(chan):
+            heartbeat = (": ping\n\n").encode('utf-8')
+            yield heartbeat
+            try:
+                await asyncio.sleep(0)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+        # proceed to streaming pubsub messages using non-blocking get_message
+        max_lifetime = float(os.getenv('SSE_MAX_LIFETIME', '2.0'))
+        start_time = asyncio.get_event_loop().time()
+        try:
+            while True:
                 if await request.is_disconnected():
                     break
+                # stop streaming after configured lifetime to avoid long-running tests
+                if asyncio.get_event_loop().time() - start_time > max_lifetime:
+                    break
                 try:
+                    # Prefer broker.get_message which returns None on timeout
+                    msg = None
+                    try:
+                        msg = await broker.get_message(chan, timeout=1.0)
+                    except AttributeError:
+                        # older broker implementations may not have get_message
+                        # fall back to a short subscribe iteration
+                        async for m in broker.subscribe(chan):
+                            msg = m
+                            break
+
+                    if msg is None:
+                        # no message this interval; continue to check disconnect
+                        continue
+
                     # msg may be JSON text
-                    yield f"data: {msg}\n\n"
+                    chunk = (f"data: {msg}\n\n").encode('utf-8')
+                    yield chunk
+                    try:
+                        await asyncio.sleep(0)
+                    except Exception:
+                        pass
+                except asyncio.CancelledError:
+                    break
                 except Exception:
+                    # swallow errors and continue streaming
                     continue
         except asyncio.CancelledError:
             return

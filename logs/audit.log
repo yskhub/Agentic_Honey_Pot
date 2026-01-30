@@ -506,3 +506,233 @@ f2d776025b5e68b7c5c6e09bcd815a5ed52ccf747436aa7512a24a7b3ce378f5
 ef908397769e2daf391b9f215564eb8a76623d4e23eb605d3643512e3519ea26
 {"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-29T21:33:22.490099Z","type":"judge_login"}
 487b3706ab2710855c400a6079467b4bec495908fa380dc75311da3f9157acb5
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-29T21:42:37.662920Z","type":"safety_blocked_reply"}
+4859b476f04d80da9f4d6d4b844c284b8e6770a443815bc934806d242ea51e27
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-29T21:42:37.670927Z","type":"safety_blocked_reply"}
+0b3daf2ab7da3064d1f7daf3dfc562b8ea14758ec533ab155e59f28350e45be7
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-29T21:42:37.701667Z","type":"ingest_message"}
+375de5429e000b585142a6d2cabe077f60eb46892afa0ca70e107cebc3acb331
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-29T21:42:37.702669Z","type":"safety_blocked_reply"}
+289c5eb46c394339c1d5a1205f0274302eee4c2c1bc23ad6c23629916cbf2215
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-29T21:42:37.711869Z","type":"agent_auto_reply"}
+0c7e6b43615708ab3413814fac59e3030c4a10b7669ce3531360d82f6aed3767
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-29T21:42:37.728729Z","type":"outgoing_sent_simulated"}
+68ad19e903a5f2403efe1c179df5b3a3cca122463d205c1946dd7ef28287d73a
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-29T21:42:37.733065Z","type":"outgoing_sent_simulated"}
+5bf3dc7a6e4cfe27802c96e0d687595c1c23581a0ca20f874abec01b031689ea
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-29T21:42:37.735582Z","type":"outgoing_sent_simulated"}
+8fdd460680e2b8896a91e70412c93cc84de36bf454893050a8536019f222db77
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-29T21:42:37.762096Z","type":"judge_login"}
+8c346266574f8a9a2efb98460aa079f972b0fdefce0cefa2ac33b317c26f1593
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-29T21:45:42.766670Z","type":"safety_blocked_reply"}
+47524a23230c93e9c73ca014468924667520d628fca3d778bc4bd0e5192c6d21
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-29T21:45:42.776030Z","type":"safety_blocked_reply"}
+1958e500dfec29d6ed6bb112db9a3b603997c09333246ec012626824188f023e
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-29T21:45:42.810202Z","type":"ingest_message"}
+461405d3a4e891be18bd88d0f32ab0cebae7d59335c4056cf95cb1a7e8c4a1f7
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-29T21:45:42.811200Z","type":"safety_blocked_reply"}
+ab936c3124d7624da1d2fdd3d0eaa7db6b14166a1398618a4cd4fd868fe7be0b
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-29T21:45:42.821692Z","type":"agent_auto_reply"}
+f465f7c52449b552979aaa97ba04977d583f69b26bc6e404bcadd5c23d4687b6
+{"payload":{"id":1,"sessionId":"agent-test-session"},"ts":"2026-01-29T21:45:42.846920Z","type":"outgoing_sent_simulated"}
+1768820d7afd4d1868e6308e8e90b63054cc52460dbfd7765163543689bfffd6
+{"payload":{"id":2,"sessionId":"e2e-session-001"},"ts":"2026-01-29T21:45:42.853917Z","type":"outgoing_sent_simulated"}
+f9d52da94c4121cc4d683344697da47881785cbfb801bed569567e163de69098
+{"payload":{"id":3,"sessionId":"test123"},"ts":"2026-01-29T21:45:42.856672Z","type":"outgoing_sent_simulated"}
+0bf973ab13acfb7641d7cb314ec263ca37a62ebd248215cda13811118e8ba9f0
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-29T21:45:42.887725Z","type":"judge_login"}
+2e0f77bc31d41255f46dc94e4acf9f8d889d01de51aa19c3a2b2e9ad2874eb42
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-29T21:51:15.029183Z","type":"judge_login"}
+1a3325883008d0190c18a1d396836cfc49fa24a127de7b05f64b5a69636e8764
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-29T21:58:09.441011Z","type":"judge_login"}
+462e02980ef12e78c643fb7eb37a2ed2a95d36e4c8be4321efb4d56528f32e0c
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T12:05:16.742228Z","type":"judge_login"}
+39e8e395af2dd10718744ec15a8f9db3968793b3ce2df7e1ec81107689892ef2
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T12:09:10.386637Z","type":"judge_login"}
+77a720cf48fd961288372e205d30ba0e2955a6d762780f53de7ab25f09cde411
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T13:10:57.044087Z","type":"judge_login"}
+a3fd7de70e8937742bc8d05cecc59be8bb3af6ad5ec25569d94092f335bc0359
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T13:11:20.073202Z","type":"judge_login"}
+16d4ecfb09ac30e605c0464f37a2e60ff229cb6e3448bdd773b5ec74bc629fa4
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T13:11:36.743224Z","type":"judge_login"}
+1cd2726009f589158818cdabd25e33d74cd8c002b5711e62a8b70714f0838b3f
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T13:12:27.973714Z","type":"safety_blocked_reply"}
+bbb063661d5272c28e2aa916223cae3a6232a2ead1b0f3ffc42e3619552414c6
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T13:12:27.979902Z","type":"safety_blocked_reply"}
+4d1cd60d938e3099dfd5b44925efdc16aa5ac26b9f0bf341ccf8aa9ce904cfeb
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T13:12:28.010569Z","type":"ingest_message"}
+93931e2a9482d7d33d2931055787f8804ace25f06ea451ab0e045aaa9f5a6c52
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T13:12:28.011864Z","type":"safety_blocked_reply"}
+96fc25b10a36543506ae985ff61ed8bb15bda81fcba4bc2f7073a2ffc491b34f
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T13:12:28.022016Z","type":"agent_auto_reply"}
+0a2f7e820ab662e12ff8b047f44bdb28b86a38823c30b470a8f6085bfdb2fa03
+{"payload":{"id":3,"sessionId":"agent-test-session"},"ts":"2026-01-30T13:12:28.038686Z","type":"outgoing_sent_simulated"}
+594c0f38bc760e0cfac6c370d39f6571c0e3004c80ea0360fbdb9502f2142c05
+{"payload":{"id":4,"sessionId":"e2e-session-001"},"ts":"2026-01-30T13:12:28.042864Z","type":"outgoing_sent_simulated"}
+7bcf5d036aac0231600319f2b86d645aae8de853fb239273db7f1a3bee3d072a
+{"payload":{"id":5,"sessionId":"test123"},"ts":"2026-01-30T13:12:28.046883Z","type":"outgoing_sent_simulated"}
+73acb2226602a2dd5f30aa25ec178ba4a23192638bd1094c922dc1b411ee4808
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T13:12:28.070272Z","type":"judge_login"}
+963045997c06f91ed03f2b10dbb4e3795c933029938b20792136399100749542
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T13:14:32.512896Z","type":"safety_blocked_reply"}
+e711ee158fe6a5ee853cc8cf9045cffdee59972f02deaf2e5235a76ef526f0ec
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T13:14:32.518835Z","type":"safety_blocked_reply"}
+575a37634f36688782f82c385ff6f3c62c1758198770d45390b8cbb082da4bde
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T13:14:32.551493Z","type":"ingest_message"}
+1d30454c05158c663a956af1842c7a9aecf222ba11d0a8124b4d92fa15525e9c
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T13:14:32.552497Z","type":"safety_blocked_reply"}
+0b0e1c3dca34f2849fdcfe004b15a48f58159efe295ce56c2dfc7d05c31d9bb2
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T13:14:32.562300Z","type":"agent_auto_reply"}
+2b2321900f178b65cb9759cd05725c65e5c4930ed1632a06845154660f51df00
+{"payload":{"id":5,"sessionId":"agent-test-session"},"ts":"2026-01-30T13:14:32.580008Z","type":"outgoing_sent_simulated"}
+85bac9183f8fb9c4cff5411f7bf0c1ff9adc445b457fcc71ccc106624079a91b
+{"payload":{"id":6,"sessionId":"e2e-session-001"},"ts":"2026-01-30T13:14:32.584021Z","type":"outgoing_sent_simulated"}
+d46e187f518afdd4fa298fea81c1767b5183ba9dc5dc09a1826debb48e63e468
+{"payload":{"id":7,"sessionId":"test123"},"ts":"2026-01-30T13:14:32.587018Z","type":"outgoing_sent_simulated"}
+4eb12a17bcb85b11e3f67d055ec00f502b1beb554af69cf4c5376e8cb36838bb
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T13:14:32.609690Z","type":"judge_login"}
+f58c486e3f17b86c1d3ff2196a340880f1a497e3adfae257b1903ebdbc974d26
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:13:00.590846Z","type":"safety_blocked_reply"}
+d01617388999f1ae198116ce2d6cf62a989398e34cd178aa56161ce48d1421b5
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:13:00.598542Z","type":"safety_blocked_reply"}
+87bd0e17cf6e2901f35b61bde13bc8eee7c034db528d3ad957842287fc47dc1c
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:13:00.638670Z","type":"ingest_message"}
+05eae1f957ddfb46d8383acbd8c453af56d569aad300d5a9110dc45c6c15e1bd
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:13:00.639668Z","type":"safety_blocked_reply"}
+89ea4c0d67cda63419a888ace6ab810cc2f0bd08cd7269a59132dc726be5710d
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:13:00.650706Z","type":"agent_auto_reply"}
+d081f3af14c4c639057a1ef51e19ff2998c12c7ef4655aab3f6ab6e1944eb645
+{"payload":{"id":7,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:13:00.669973Z","type":"outgoing_sent_simulated"}
+1a22c6811008f90952fca3a27cdbf5d35fa0b92a449926326d83a6af28848961
+{"payload":{"id":8,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:13:00.676979Z","type":"outgoing_sent_simulated"}
+656a38ef4c22f657fc32c65f130fdfe91a2d7bb5b3c051a8a1397e598a3f6155
+{"payload":{"id":9,"sessionId":"test123"},"ts":"2026-01-30T14:13:00.682205Z","type":"outgoing_sent_simulated"}
+f3dd95db48d119920946b909ae1ada9a720af0063eb3beef300ac0fc4ad28c04
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:13:00.825264Z","type":"judge_login"}
+9e53fd6c8662eb5bd5c81762987502d0f64bb6114fc2830739bae11e02532b1e
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:15:59.632833Z","type":"safety_blocked_reply"}
+de0704a24d4f6bb6e7f03be148c686d2f7df5e06f052d0cad3c3030b470a1aed
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:15:59.639250Z","type":"safety_blocked_reply"}
+4deb9fe00bc6c5843539c1ce583ca171f9aa62ff82e8f3634159719271edaad9
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:15:59.673218Z","type":"ingest_message"}
+82410b7b83ecc1f387abea9bac98b56409a8971e7c9d8937e37d4d3d16234a57
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:15:59.674246Z","type":"safety_blocked_reply"}
+0dd7b2c9dac308d24efbb8c62fa44b742def58e220eab787347263a8ea863fbf
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:15:59.682243Z","type":"agent_auto_reply"}
+b8a2b775b4628a026bae4f27eeff07c051e745b23d0054eaddf618c82d502f59
+{"payload":{"id":9,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:15:59.700068Z","type":"outgoing_sent_simulated"}
+d901c65010d439a40512746983cb94696931c3b52058553545e5aef95b0401e7
+{"payload":{"id":10,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:15:59.705074Z","type":"outgoing_sent_simulated"}
+1e6f4c7d6d6b7bf21672a83bb50f0af2cd38556afdf7499f13843735e37a312e
+{"payload":{"id":11,"sessionId":"test123"},"ts":"2026-01-30T14:15:59.708094Z","type":"outgoing_sent_simulated"}
+c152e3d980a1d2b26d137e222ea120720544f5a3e7bc1dddc8f637c915df2931
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:15:59.736673Z","type":"judge_login"}
+130314f7342838304ea4d6873800595788d7e6f6e4e886829e1567aed6cf1883
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:18:24.496661Z","type":"safety_blocked_reply"}
+c6cb847c7a8e499e21b577235f897c56957a78409eacf1cad15e2c45fa42b115
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:18:24.502946Z","type":"safety_blocked_reply"}
+963336052a0d526173988a8984a87935076f4b7d3a849e52dd02188f20ae9b68
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:18:24.544273Z","type":"ingest_message"}
+e5a88cad70b8fcc70e8eb0543b16b952f00fd656a360b5ef90b67e33bde1fa91
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:18:24.545279Z","type":"safety_blocked_reply"}
+c94c29c45060c7b851352c751c294b73cea9b2e25e1f628eebe20fa2e82830e1
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:18:24.555626Z","type":"agent_auto_reply"}
+e70436cad8f0617c376a7f1e3c7cfed0f2a7dde6ff3361974e2f07bfd16aa9a9
+{"payload":{"id":11,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:18:24.582254Z","type":"outgoing_sent_simulated"}
+1cca2dc1474023d2bad49873db4c7b38dfa62dd24500afedd832f813023c6e95
+{"payload":{"id":12,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:18:24.587206Z","type":"outgoing_sent_simulated"}
+c10da5ab9e46690a6231fd70cffad4ada4a3b5c5e47f2550ff8708dd1752450f
+{"payload":{"id":13,"sessionId":"test123"},"ts":"2026-01-30T14:18:24.594927Z","type":"outgoing_sent_simulated"}
+6c96d5678b5e5abf40138da997c137e782ee93a15985afcbb396e2efa666b697
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:18:24.621026Z","type":"judge_login"}
+88af3364942b914fc3c0f551b8ef101ff6185f36ebca8be1937db9d35b21f414
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:20:02.969400Z","type":"safety_blocked_reply"}
+2e128e172e46a69e20276cce3ebd61d651e9ab505e4f20fc6365bc048bc7d6c7
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:20:02.975858Z","type":"safety_blocked_reply"}
+b980a8c50fc73f2122be76da5784bbe31280a12272a6a56eef9e9d0c5f2765f6
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:20:03.011747Z","type":"ingest_message"}
+967a81e791a6cedc606c561cf98a20c8f615825c7c24e0fbeeba0776649f0408
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:20:03.012747Z","type":"safety_blocked_reply"}
+a1d67b7867eca299be8d48582dbddc96ac99dddef976398f7ca1c29cf892c43f
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:20:03.020794Z","type":"agent_auto_reply"}
+5f7f5d824a5659fbd9c667f94c4a7685102edd7ad79ba14e8f973883d49f388a
+{"payload":{"id":13,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:20:03.040996Z","type":"outgoing_sent_simulated"}
+29e5c37a594f581ce482bb25ae812098e83710860f27bea47147612e044e43e4
+{"payload":{"id":14,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:20:03.045011Z","type":"outgoing_sent_simulated"}
+4c1d02875f8c653b98d2966a6ca1a668af29ac0caeaf3c9675c17ab3fed61ea8
+{"payload":{"id":15,"sessionId":"test123"},"ts":"2026-01-30T14:20:03.047997Z","type":"outgoing_sent_simulated"}
+14147253adfd9d346f18cd7d070b789da89f11337051f9dd9821bb0c03c9a4ad
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:20:03.075299Z","type":"judge_login"}
+4ba83318ec161d874498eec98650e09a0378b157d6f1f7cbc2b01067c20a38c9
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:47:44.458449Z","type":"safety_blocked_reply"}
+b6fb2bc48e8bfe388e1e242aa43f137b3358778ae5882597ec6efb953dffa404
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:47:44.467681Z","type":"safety_blocked_reply"}
+0b67fe8ecd818aeb96ec555575639f6bcf7706d27a3b1bc2716fcf21d5d9403a
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:47:44.504701Z","type":"ingest_message"}
+b64d4f19ae5b5995dd0b5680ef324b5cf4ce3ff24d629b7ad190bd849deb88e5
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:47:44.505702Z","type":"safety_blocked_reply"}
+38eeb8a73793d1f2a478dcd5e42c40171e52330268475fb320279cb57bc1a11d
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:47:44.516364Z","type":"agent_auto_reply"}
+b4a092397b6fc5b71e60c12232b9a9aaa0007b0ad83d2fb547d5b59f09fe3adb
+{"payload":{"id":15,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:47:44.535749Z","type":"outgoing_sent_simulated"}
+63073f6284a1efdc65847a61f6e27bf903f03b982bedbddda3ee658aefdec4d7
+{"payload":{"id":16,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:47:44.540751Z","type":"outgoing_sent_simulated"}
+3bec508d6cbd15749e8eacfab7da892c07c0703485e0a8d02825e1dc450ed5d0
+{"payload":{"id":17,"sessionId":"test123"},"ts":"2026-01-30T14:47:44.545893Z","type":"outgoing_sent_simulated"}
+d84e03643de551c0b9b8acb60f3c9845e0b419559fc9f6b8487b3d43da9d8bb3
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:47:44.573141Z","type":"judge_login"}
+d0b499638b774905e82e59f13649ec6b228c5c0086f4a3cd164362ea15d41c70
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T14:55:05.258488Z","type":"safety_blocked_reply"}
+1c8fce859390ae8652fbb6151054e5e7a4be7ceb23edbcfc76eacf3a62a2b14c
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T14:55:05.264000Z","type":"safety_blocked_reply"}
+4075c655097289f7cf996b51eddfa7b3a5816e11fac5e3736dff9c744bd79158
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:55:05.309375Z","type":"ingest_message"}
+1977527e1ffa390aa38766dfe23e7058e530b1615c20fcc8d60fd689e387d132
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:55:05.310382Z","type":"safety_blocked_reply"}
+800f713088b13fae4a0b07ae2bfbfa1fd451b241ad12aeae8fc54a325049f425
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T14:55:05.321329Z","type":"agent_auto_reply"}
+6e7f46509b8e89a474efb245969a7e5ac085049fa1acf459462163e979466da1
+{"payload":{"id":17,"sessionId":"agent-test-session"},"ts":"2026-01-30T14:55:05.349668Z","type":"outgoing_sent_simulated"}
+32b765b5abbb66d406af1976d53d2f07f2802e6ccad4807f1c21f3b4ea3013e1
+{"payload":{"id":18,"sessionId":"e2e-session-001"},"ts":"2026-01-30T14:55:05.356666Z","type":"outgoing_sent_simulated"}
+d7ebcaf28d2ecb2afb121a22d1937246ff015435d6dd6700ccd07e98442e1173
+{"payload":{"id":19,"sessionId":"test123"},"ts":"2026-01-30T14:55:05.362038Z","type":"outgoing_sent_simulated"}
+5e309915d57dd6fcc5dea0d45eb1d52ff9804e11db8819bc952e1498e37cc20d
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T14:55:05.389039Z","type":"judge_login"}
+585863f806f1b24327e66750d8af3143d7f00b52e79775e3ddf12aa4bf7e6e4a
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T15:21:41.901266Z","type":"safety_blocked_reply"}
+01fc56b705ed324fd545bf41e1a8b5e0285f8f80e28e84d54b000e3b281d8e23
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T15:21:41.910948Z","type":"safety_blocked_reply"}
+f31cefe5838b54ecfe4194f39016bdbf3534daf028c155e0ea1b82ea366a14c8
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T15:21:41.954194Z","type":"ingest_message"}
+c45adb390790d0f6f5a685ed62c357b429c8c1a08d44fdb2e0faefb59ca8e873
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T15:21:41.956198Z","type":"safety_blocked_reply"}
+4e3d7baec30fd83db6d39eea8e78b4e3c173fd7dfb79cf646713173ed7d462c8
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T15:21:41.967086Z","type":"agent_auto_reply"}
+89f3f151a17b6ae775a5137fc3b0cdc6514793d060ce84dbff669d842c19b5ec
+{"payload":{"id":19,"sessionId":"agent-test-session"},"ts":"2026-01-30T15:21:41.988147Z","type":"outgoing_sent_simulated"}
+776fc464eaf1e1f128c60716d7dea307a13194fb70108e92b2bddeb3564eafb9
+{"payload":{"id":20,"sessionId":"e2e-session-001"},"ts":"2026-01-30T15:21:41.996705Z","type":"outgoing_sent_simulated"}
+c267ceb55d22ce4c81b1f60fea3c25585d64c867bc8657189c706798da65167a
+{"payload":{"id":21,"sessionId":"test123"},"ts":"2026-01-30T15:21:42.000824Z","type":"outgoing_sent_simulated"}
+75238ce462d2bcb7916c4b88a4dc3369b8abf01695b5835c000f5d1ff3b5e683
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T15:21:42.031150Z","type":"judge_login"}
+a796be7eefbd55913702e8d0fe8bd1ac0052026e6dfacf785891e101ef8c8305
+{"payload":{"original":"Could you share your UPI ID so I can check the payment?","reason":"financial_instruction","sessionId":"s1"},"ts":"2026-01-30T15:24:12.423312Z","type":"safety_blocked_reply"}
+d91460e52a2feb8f239cdfd7226cb591b2e670f667454dfb5fe56ddb1715b014
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"agent-test-session"},"ts":"2026-01-30T15:24:12.428638Z","type":"safety_blocked_reply"}
+75450fa4dad1fb1f9c7051a00dee6b7c798e72a34444ead2c5dc41037b05f8ca
+{"payload":{"reasons":["keywords:upi","upi_phrase_detected","payment_phrase_detected","upi_detected"],"score":1.0,"sessionId":"e2e-session-001"},"ts":"2026-01-30T15:24:12.467636Z","type":"ingest_message"}
+c8152bb8b0452cab8b6033fd3e75a272796622825bcd0e42379b769872b77a28
+{"payload":{"original":"Please provide your UPI ID (example: name@bank) to proceed.","reason":"financial_instruction","sessionId":"e2e-session-001"},"ts":"2026-01-30T15:24:12.468635Z","type":"safety_blocked_reply"}
+243b1bd8712149d25e89df1cd1a41734418d0ed6809869da89280054fe79da54
+{"payload":{"reply":"I'm sorry, I can't assist with requests to transfer money.","sessionId":"e2e-session-001"},"ts":"2026-01-30T15:24:12.477635Z","type":"agent_auto_reply"}
+c1e59577d333d6336f333e81d330b3179a31591758ba7b5f5c0665e4c847e0d2
+{"payload":{"id":21,"sessionId":"agent-test-session"},"ts":"2026-01-30T15:24:12.495109Z","type":"outgoing_sent_simulated"}
+746801749e12cef74a9f7c0bf9bf93649124015bf381a732ec3d9d953a4fb035
+{"payload":{"id":22,"sessionId":"e2e-session-001"},"ts":"2026-01-30T15:24:12.502599Z","type":"outgoing_sent_simulated"}
+4fccfa1f2ac7158d3467127e4a55e5acdd3f9c8be43f096b11cf7cd03b1f95d8
+{"payload":{"id":23,"sessionId":"test123"},"ts":"2026-01-30T15:24:12.506109Z","type":"outgoing_sent_simulated"}
+07f1dedb42acd2ca346e15ca9c4971525e3f9fa9e8c1d64847252b5713388d32
+{"payload":{"judge":"alice","session_id":"test-session-sse"},"ts":"2026-01-30T15:24:12.530076Z","type":"judge_login"}
+ba1f6fdf89f1a27332f6839937a01fe0dd06e45ebf6feaeb482725469b3422c2
