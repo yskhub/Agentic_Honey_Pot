@@ -5,7 +5,7 @@ sqlalchemy
 alembic
 python-dotenv
 requests
-httpx
+httpx==0.23.3
 scikit-learn
 joblib
 spacy
