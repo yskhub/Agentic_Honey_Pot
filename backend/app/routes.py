@@ -33,50 +33,46 @@ from .profiler import get_recent_slow_requests
 
 router = APIRouter()
 
-def send_guvi_callback(payload: dict):
-    if not outgoing_breaker.allow():
-        append_event('guvi_callback_shortcircuited', {'sessionId': payload.get('sessionId')})
-        return {'status': 'shortcircuited'}
-    guvi_url = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
-    guvi_key = os.getenv("GUVI_API_KEY", "")
-    headers = {"Content-Type": "application/json", "x-api-key": guvi_key}
-    # simple retry loop
-    attempts = 0
-    max_attempts = 3
-    backoff = 1
-    while attempts < max_attempts:
-        try:
-            resp = requests.post(guvi_url, json=payload, headers=headers, timeout=5)
-            resp.raise_for_status()
-            try:
-                outgoing_breaker.record_success()
-            except Exception:
-                pass
-            append_event("guvi_callback_sent", {"payload": payload, "status": resp.status_code})
-            return {"status": "sent", "code": resp.status_code}
-        except Exception as e:
-            attempts += 1
-            try:
-                outgoing_breaker.record_failure()
-            except Exception:
-                pass
-            append_event("guvi_callback_error", {"attempt": attempts, "error": str(e)})
-            import time
-            time.sleep(backoff)
-            backoff *= 2
-    # enqueue for persistent retry
+
+def _sse_defaults() -> tuple:
+    """Return (history_limit, max_lifetime) for SSE streams.
+    - If explicit env vars `SSE_HISTORY_LIMIT` or `SSE_MAX_LIFETIME` are set, use them.
+    - In CI/test environments return conservative defaults to avoid long-running tests.
+    """
     try:
-        enqueue(payload)
+        # explicit env overrides
+        limit = os.getenv('SSE_HISTORY_LIMIT')
+        max_life = os.getenv('SSE_MAX_LIFETIME')
+        if limit is not None:
+            try:
+                limit_val = int(limit)
+            except Exception:
+                limit_val = None
+        else:
+            limit_val = None
+        if max_life is not None:
+            try:
+                max_life_val = int(max_life)
+            except Exception:
+                max_life_val = None
+        else:
+            max_life_val = None
+
+        # CI/test conservative defaults when not explicitly configured
+        if (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('PYTEST_CURRENT_TEST')) and limit_val is None and max_life_val is None:
+            return (25, 2)
+
+        return (limit_val, max_life_val)
     except Exception:
-        append_event("enqueue_failed", {"sessionId": payload.get("sessionId")})
-    return {"status": "failed_enqueued", "attempts": attempts}
+        return (None, None)
+from .guvi_callback import send_guvi_callback
 
 @router.get("/health")
 def health():
     return {"status": "ok"}
 
 @router.post("/v1/message", response_model=IngestResponse)
-def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), authorized: bool = Depends(require_api_key)):
+def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), authorized: bool = Depends(require_api_key), background_tasks: BackgroundTasks = None):
     # Ensure session exists
     # rate limiting per API key
     if not is_allowed(authorized):
@@ -86,6 +82,21 @@ def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), author
         sess = DBSess(id=payload.sessionId, metadata_json=json.dumps(payload.metadata or {}))
         db.add(sess)
         db.commit()
+    # Merge any provided conversationHistory into DB (best-effort)
+    try:
+        if payload.conversationHistory:
+            for m in payload.conversationHistory:
+                # avoid exact-duplicate inserts by checking for same timestamp+text
+                exists = db.query(DBMessage).filter(DBMessage.session_id == payload.sessionId, DBMessage.sender == m.sender, DBMessage.text == m.text, DBMessage.timestamp == m.timestamp).first()
+                if not exists:
+                    hist_msg = DBMessage(session_id=payload.sessionId, sender=m.sender, text=m.text, timestamp=m.timestamp, raw=m.text)
+                    db.add(hist_msg)
+            db.commit()
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
     # store incoming message
     msg = DBMessage(session_id=payload.sessionId, sender=payload.message.sender, text=payload.message.text, timestamp=payload.message.timestamp, raw=payload.message.text)
     db.add(msg)
@@ -142,7 +153,9 @@ def ingest_message(payload: IngestRequest, db: Session = Depends(get_db), author
             else:
                 # auto-respond using agent and persist agent message
                 try:
-                    resp = agent_respond(payload.sessionId, payload.message.text, db)
+                    # prefer persona set on session if available
+                    persona_id = getattr(sess, 'persona', None) or None
+                    resp = agent_respond(payload.sessionId, payload.message.text, db, persona_id or 'honeypot_default', background_tasks=background_tasks)
                     agent_reply = resp.get('reply')
                     append_event('agent_auto_reply', {'sessionId': payload.sessionId, 'reply': agent_reply})
                 except Exception:
@@ -397,6 +410,52 @@ def admin_ui_session_export_csv(session_id: str, db: Session = Depends(get_db), 
                     yield row
 
     return StreamingResponse(iter_csv(), media_type='text/csv')
+
+
+@router.get('/v1/session/{session_id}/result')
+def session_result(session_id: str, db: Session = Depends(get_db), authorized: bool = Depends(require_api_key)):
+    # Build structured intelligence and engagement metrics for a session
+    messages = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp).all()
+    extractions = db.query(DBExtraction).filter(DBExtraction.session_id == session_id).all()
+    extracted = {"bankAccounts": [], "upiIds": [], "phishingLinks": [], "phoneNumbers": [], "suspiciousKeywords": []}
+    for e in extractions:
+        if e.type == "phone":
+            extracted["phoneNumbers"].append(e.value)
+        if e.type == "upi":
+            extracted["upiIds"].append(e.value)
+        if e.type == "url":
+            extracted["phishingLinks"].append(e.value)
+
+    total_messages = len(messages)
+    engagement_seconds = 0
+    if total_messages >= 2:
+        try:
+            first = messages[0].timestamp
+            last = messages[-1].timestamp
+            if first and last:
+                engagement_seconds = int((last - first).total_seconds())
+        except Exception:
+            engagement_seconds = 0
+
+    # agent notes from conversation state
+    agent_notes = None
+    try:
+        from .db import ConversationState
+        cs = db.query(ConversationState).filter(ConversationState.session_id == session_id).first()
+        if cs:
+            agent_notes = cs.last_agent_reply
+    except Exception:
+        agent_notes = None
+
+    scam_detected = bool(extractions) or any((m.sender == 'agent') for m in messages)
+
+    return {
+        "status": "success",
+        "scamDetected": scam_detected,
+        "engagementMetrics": {"engagementDurationSeconds": engagement_seconds, "totalMessagesExchanged": total_messages},
+        "extractedIntelligence": extracted,
+        "agentNotes": agent_notes or ""
+    }
 
 
 @router.get('/admin/ui/sse/session/{session_id}')
