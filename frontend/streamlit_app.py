@@ -10,7 +10,7 @@ import streamlit.components.v1 as components
 DB_PATH = os.getenv('SENTINEL_DB', 'data/sentinel.db')
 
 
-@st.cache_data
+@st.cache_resource
 def get_connection(db_path: str):
     p = Path(db_path)
     if not p.exists():
