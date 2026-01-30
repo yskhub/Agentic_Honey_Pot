@@ -427,11 +427,14 @@ async def admin_ui_sse_session(session_id: str, request: Request, db: Session = 
 
     async def event_generator():
         # first, yield existing messages once (yield bytes and give control to event loop)
-        # yield a limited set of historical messages (most recent first)
-        # to avoid streaming a very large backlog into test clients or browsers.
-        # Default kept small so tests and local dev don't pull huge history.
-        limit = int(os.getenv('SSE_HISTORY_LIMIT', '5'))
-        rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp.desc()).limit(limit).all()
+        # yield a limited set of historical messages (most recent first) when configured,
+        # otherwise in production return full history. Defaults are environment-specific
+        # and come from `_sse_defaults()` (CI/test get conservative defaults).
+        limit, max_lifetime = _sse_defaults()
+        if limit:
+            rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp.desc()).limit(limit).all()
+        else:
+            rows = db.query(DBMessage).filter(DBMessage.session_id == session_id).order_by(DBMessage.timestamp.desc()).all()
         # rows are newest-first; send them oldest-first to preserve chronology
         rows = list(reversed(rows))
         for r in rows:
@@ -457,14 +460,13 @@ async def admin_ui_sse_session(session_id: str, request: Request, db: Session = 
             pass
 
         # proceed to streaming pubsub messages using non-blocking get_message
-        max_lifetime = float(os.getenv('SSE_MAX_LIFETIME', '2.0'))
         start_time = asyncio.get_event_loop().time()
         try:
             while True:
                 if await request.is_disconnected():
                     break
                 # stop streaming after configured lifetime to avoid long-running tests
-                if asyncio.get_event_loop().time() - start_time > max_lifetime:
+                if max_lifetime is not None and asyncio.get_event_loop().time() - start_time > max_lifetime:
                     break
                 try:
                     # Prefer broker.get_message which returns None on timeout
