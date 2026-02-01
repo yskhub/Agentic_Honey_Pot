@@ -1,4 +1,26 @@
-# Ignore node modules
+/.venv/
+.venv/
+venv/
+env/
+ENV/
+/.env
+.env
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+/.mypy_cache/
+logs/
+data/*.db
+.vscode/
+.idea/
+dist/
+build/
+/.pytest_cache/
+/.DS_Store
+Thumbs.db# Ignore node modules
 frontend/nextjs/node_modules/
 frontend/nextjs/.next/
 
