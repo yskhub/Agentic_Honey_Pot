@@ -1,0 +1,28 @@
+name: Smoke E2E
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run smoke E2E
+        env:
+          API_KEY: test_client_key
+          ADMIN_API_KEY: test_admin_key
+        run: |
+          python dev-scripts/run_e2e_local.py || exit 1
