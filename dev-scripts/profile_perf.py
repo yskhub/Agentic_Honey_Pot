@@ -2,8 +2,13 @@
 import time
 import requests
 import os
+import sys
 
-BACKEND = os.environ.get('BACKEND_URL', 'http://127.0.0.1:8030')
+# Accept backend URL as CLI arg or use env var BACKEND or fallback to 127.0.0.1:8030
+BACKEND = None
+if len(sys.argv) > 1:
+    BACKEND = sys.argv[1]
+BACKEND = BACKEND or os.environ.get('BACKEND') or os.environ.get('BACKEND_URL') or 'http://127.0.0.1:8030'
 API_KEY = os.environ.get('API_KEY', 'test_client_key')
 
 payload = {
@@ -30,4 +35,5 @@ def run(n=20, delay=0.1):
 
 
 if __name__ == '__main__':
+    # allow passing backend url: python profile_perf.py http://127.0.0.1:8001
     run()
