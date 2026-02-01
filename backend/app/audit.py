@@ -4,6 +4,12 @@ import json
 from datetime import datetime
 import os
 from pathlib import Path
+import hmac
+import hashlib
+import json
+from datetime import datetime
+import os
+from pathlib import Path
 import logging
 
 # structured logger
@@ -72,9 +78,12 @@ def append_event(event_type: str, payload: dict):
     raw = json.dumps(entry, separators=(",", ":"), sort_keys=True).encode("utf-8")
     sig = _sign(raw)
     # Preserve current two-line JSONL+sig format for streaming compatibility.
-    with open(AUDIT_FILE, "ab") as f:
-        f.write(raw + b"\n")
-        f.write((sig + "\n").encode("utf-8"))
+    try:
+        with open(AUDIT_FILE, "ab") as f:
+            f.write(raw + b"\n")
+            f.write((sig + "\n").encode("utf-8"))
+    except Exception:
+        pass
     try:
         # also emit structured JSON line to audit logger
         # include an indicator of which key was used for signing (best-effort)
@@ -86,19 +95,27 @@ def append_event(event_type: str, payload: dict):
 
 
 def read_events():
+    """Read the audit file and return a list of entries with signature validity.
+
+    The audit file uses a two-line format per entry: raw JSON line (bytes)
+    followed by a hex signature line (utf-8).
+    """
     if not AUDIT_FILE.exists():
         return []
     events = []
     with open(AUDIT_FILE, "rb") as f:
         lines = f.read().splitlines()
-    # lines: raw, sig, raw, sig, ...
     for i in range(0, len(lines), 2):
         raw = lines[i]
-        sig = lines[i+1].decode("utf-8") if i+1 < len(lines) else ""
+        sig = lines[i + 1].decode("utf-8") if i + 1 < len(lines) else ""
         valid = False
         try:
             valid = _verify_signature(raw, sig)
         except Exception:
             valid = False
-        events.append({"raw": raw.decode("utf-8"), "sig": sig, "valid": valid})
+        try:
+            raw_decoded = raw.decode("utf-8")
+        except Exception:
+            raw_decoded = ""
+        events.append({"raw": raw_decoded, "sig": sig, "valid": valid})
     return events

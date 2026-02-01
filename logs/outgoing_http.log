@@ -1,7 +1,0 @@
-{"ts": "2026-01-28T23:28:30.201275", "event": "simulated_sent", "id": 1, "sessionId": "agent-test-session", "content": "Please provide your UPI ID (example: name@bank) to proceed."}
-{"ts": "2026-01-28T23:28:30.205256", "event": "simulated_sent", "id": 2, "sessionId": "e2e-session-001", "content": "Could you share your UPI ID so I can check the payment?"}
-{"ts": "2026-01-28T23:28:30.208257", "event": "simulated_sent", "id": 3, "sessionId": "test123", "content": "hello"}
-{"ts": "2026-01-28T23:41:42.243783", "event": "simulated_sent", "id": 1, "sessionId": "agent-test-session", "content": "Please provide your UPI ID (example: name@bank) to proceed."}
-{"ts": "2026-01-28T23:41:42.247785", "event": "simulated_sent", "id": 2, "sessionId": "e2e-session-001", "content": "Please provide your UPI ID (example: name@bank) to proceed."}
-{"ts": "2026-01-28T23:41:42.251238", "event": "simulated_sent", "id": 3, "sessionId": "test123", "content": "hello"}
-{"ts": "2026-01-29T01:59:21.477049", "event": "simulated_sent", "id": 1, "sessionId": "test123", "content": "hello"}
