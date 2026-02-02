@@ -1,0 +1,26 @@
+# Render service definitions (example). Edit names/IDs as needed before applying.
+services:
+  - type: web
+    name: agentic-honeypot-web
+    env: docker
+    repo: https://github.com/yskhub/Agentic_Honey_Pot
+    branch: main
+    dockerfilePath: Dockerfile
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker backend.app.main:app --bind 0.0.0.0:8000
+  - type: worker
+    name: agentic-honeypot-worker
+    env: docker
+    repo: https://github.com/yskhub/Agentic_Honey_Pot
+    branch: main
+    dockerfilePath: Dockerfile
+    startCommand: python -m backend.app.outgoing_worker
+
+databases:
+  - name: agentic-honeypot-db
+    engine: postgres
+    version: "14"
+
+# Notes:
+# - This is a template for Render; connect your GitHub repo in the Render UI
+#   and review/adjust service names, build/start commands, and environment
+#   variables in the Render dashboard.
