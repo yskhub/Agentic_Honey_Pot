@@ -1,0 +1,59 @@
+name: Remote Smoke Test (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL of deployed service (e.g. https://my-app.onrender.com)'
+        required: true
+      session_id:
+        description: 'Session id to use for smoke test'
+        required: false
+        default: smoke-session-remote-001
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run remote smoke test
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url }}
+          API_KEY: ${{ secrets.API_KEY }}
+          SESSION_ID: ${{ github.event.inputs.session_id }}
+        run: |
+          python - <<'PY'
+import os, requests, json, time
+base = os.environ.get('BASE_URL')
+api_key = os.environ.get('API_KEY')
+sid = os.environ.get('SESSION_ID','smoke-session-remote-001')
+if not base:
+    raise SystemExit('BASE_URL not provided')
+if not api_key:
+    raise SystemExit('API_KEY secret not set')
+# Post initial message
+payload = {
+  'sessionId': sid,
+  'message': {'sender': 'scammer', 'text': 'This is a test message for smoke', 'timestamp': '2026-01-01T00:00:00Z'},
+  'conversationHistory': [],
+  'metadata': {'channel': 'SMS', 'language': 'English', 'locale': 'IN'}
+}
+headers = {'x-api-key': api_key, 'Content-Type': 'application/json'}
+print('POST', base + '/v1/message')
+r = requests.post(base + '/v1/message', json=payload, headers=headers, timeout=10)
+print('status:', r.status_code, r.text)
+if r.status_code >= 400:
+    raise SystemExit('POST failed')
+# wait a moment for agent work to complete
+time.sleep(2)
+# fetch result
+print('GET', base + f'/v1/session/{sid}/result')
+r = requests.get(base + f'/v1/session/{sid}/result', headers={'x-api-key': api_key}, timeout=10)
+print('status:', r.status_code)
+print('body:', r.text)
+if r.status_code != 200:
+    raise SystemExit('Result endpoint failed')
+j = r.json()
+if 'status' not in j or j.get('status') != 'success':
+    raise SystemExit('Unexpected result payload')
+print('Smoke test passed')
+PY

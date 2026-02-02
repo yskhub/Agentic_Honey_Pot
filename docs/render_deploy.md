@@ -36,3 +36,35 @@ If you want, I can:
 - Create a small `renderctl` helper script that calls Render API to run one-off jobs for migrations.
 
 Tell me which option you prefer and I will implement it.
+
+Additional GitHub Actions (added):
+
+- `Run Alembic Migrations (manual)` — `.github/workflows/run-migrations.yml`:
+  - Trigger: `workflow_dispatch` (manual from Actions UI).
+  - Guard: requires repository secret `DATABASE_URL` and `MIGRATE_ALLOWED` set to `1`.
+  - Purpose: run `alembic upgrade head` safely from CI against your managed Postgres.
+
+- `Remote Smoke Test (manual)` — `.github/workflows/remote-smoke.yml`:
+  - Trigger: `workflow_dispatch` (manual from Actions UI).
+  - Inputs: `base_url` (deployed service URL), optional `session_id`.
+  - Requires secret `API_KEY` (set in GitHub Secrets).
+  - Purpose: post a sample message to `/v1/message` and verify `/v1/session/{id}/result`.
+
+How to use:
+
+1. Set GitHub secrets in repository Settings → Secrets:
+   - `DATABASE_URL` (Postgres connection URL)
+   - `MIGRATE_ALLOWED` = `1` when you intend to run migrations from Actions
+   - `API_KEY` (your service API key used by the judge)
+   - `RENDER_API_KEY` and `RENDER_SERVICE_ID` (optional, for deploy trigger)
+   - `GUVI_API_KEY`, `AUDIT_HMAC_KEY`, `ADMIN_API_KEY` as described earlier
+
+2. To run migrations from the Actions UI:
+   - Open the repository → Actions → `Run Alembic Migrations (manual)` and press `Run workflow`.
+   - Only run this when `MIGRATE_ALLOWED` is set to `1` and `DATABASE_URL` is configured.
+
+3. To smoke-test a deployed service:
+   - Deploy application to Render (or any host) and note the base URL.
+   - Open Actions → `Remote Smoke Test (manual)` → `Run workflow`, set `base_url` to the deployed URL and run.
+
+If you want, I can also add a protected branch policy or a review step before migration runs. Let me know.
